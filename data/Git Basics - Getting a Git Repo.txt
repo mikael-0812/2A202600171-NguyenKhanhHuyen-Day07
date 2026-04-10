@@ -1,0 +1,50 @@
+Kiến thức cơ bản về Git - Tạo kho lưu trữ Git
+Nếu bạn chỉ có thể đọc một chương để bắt đầu sử dụng Git, thì đây chính là chương đó. Chương này bao gồm mọi lệnh cơ bản bạn cần để thực hiện phần lớn các công việc bạn sẽ dành thời gian làm với Git. Đến cuối chương, bạn sẽ có thể cấu hình và khởi tạo kho lưu trữ, bắt đầu và dừng theo dõi tập tin, cũng như thêm và cam kết các thay đổi. Chúng tôi cũng sẽ hướng dẫn bạn cách thiết lập Git để bỏ qua một số tập tin và mẫu tập tin nhất định, cách hoàn tác lỗi nhanh chóng và dễ dàng, cách duyệt lịch sử dự án và xem các thay đổi giữa các lần cam kết, và cách đẩy và kéo từ các kho lưu trữ từ xa.
+
+Lấy kho lưu trữ Git
+Thông thường, bạn có thể tạo một kho lưu trữ Git theo một trong hai cách sau:
+
+-Bạn có thể lấy một thư mục cục bộ hiện không được quản lý bằng hệ thống kiểm soát phiên bản và biến nó thành một kho lưu trữ Git, hoặc
+
+-Bạn có thể sao chép một kho lưu trữ Git hiện có từ nơi khác.
+
+Trong cả hai trường hợp, bạn đều có một kho lưu trữ Git trên máy tính cục bộ của mình, sẵn sàng để sử dụng.
+
+Khởi tạo kho lưu trữ trong một thư mục hiện có.
+Nếu bạn có một thư mục dự án hiện chưa được quản lý bằng hệ thống kiểm soát phiên bản và bạn muốn bắt đầu quản lý nó bằng Git, trước tiên bạn cần truy cập vào thư mục dự án đó. Nếu bạn chưa từng làm điều này, giao diện sẽ hơi khác nhau tùy thuộc vào hệ điều hành bạn đang sử dụng:
+
+Dành cho Linux:
+
+$ cd /home/user/my_project
+Dành cho macOS:
+
+$ cd /Users/user/my_project
+Dành cho Windows:
+
+$ cd C:/Users/user/my_project
+và loại:
+
+$ git init
+Thao tác này tạo một thư mục con mới có tên .gitchứa tất cả các tệp cần thiết cho kho lưu trữ của bạn — một khung sườn kho lưu trữ Git. Tại thời điểm này, chưa có gì trong dự án của bạn được theo dõi. Xem Git Internals để biết thêm thông tin về chính xác những tệp nào có trong .gitthư mục bạn vừa tạo.
+
+Nếu bạn muốn bắt đầu quản lý phiên bản các tệp hiện có (thay vì một thư mục trống), bạn nên bắt đầu theo dõi các tệp đó và thực hiện một lần commit ban đầu. Bạn có thể thực hiện điều đó bằng một vài git addlệnh chỉ định các tệp bạn muốn theo dõi, theo sau là dấu hai chấm ( git commit:).
+
+$ git add *.c
+$ git add LICENSE
+$ git commit -m 'Initial project version'
+Chúng ta sẽ xem xét chức năng của các lệnh này trong giây lát nữa. Đến thời điểm này, bạn đã có một kho lưu trữ Git với các tệp được theo dõi và một lần commit đầu tiên.
+
+Sao chép kho lưu trữ hiện có
+Nếu bạn muốn sao chép một kho lưu trữ Git hiện có — ví dụ: một dự án bạn muốn đóng góp — lệnh bạn cần là `git clone` git clone. Nếu bạn quen thuộc với các hệ thống kiểm soát phiên bản khác như Subversion, bạn sẽ nhận thấy rằng lệnh là "clone" chứ không phải "checkout". Đây là một điểm khác biệt quan trọng — thay vì chỉ nhận được một bản sao làm việc, Git nhận được một bản sao đầy đủ của gần như tất cả dữ liệu mà máy chủ có. Mọi phiên bản của mọi tệp trong lịch sử dự án đều được tải xuống theo mặc định khi bạn chạy ` git clonegit clone`. Trên thực tế, nếu ổ đĩa máy chủ của bạn bị hỏng, bạn thường có thể sử dụng gần như bất kỳ bản sao nào trên bất kỳ máy khách nào để khôi phục máy chủ về trạng thái ban đầu khi nó được sao chép (bạn có thể mất một số hook phía máy chủ, nhưng tất cả dữ liệu phiên bản sẽ vẫn còn đó — xem phần "Getting Git on a Server" để biết thêm chi tiết).
+
+Bạn sao chép một kho lưu trữ bằng lệnh `sclone` git clone <url>. Ví dụ, nếu bạn muốn sao chép thư viện liên kết Git có tên là `<repository>` libgit2, bạn có thể thực hiện như sau:
+
+$ git clone https://github.com/libgit2/libgit2
+Thao tác này tạo một thư mục có tên libgit2, khởi tạo một .gitthư mục con bên trong thư mục đó, tải xuống toàn bộ dữ liệu cho kho lưu trữ đó và tạo một bản sao làm việc của phiên bản mới nhất. Nếu bạn vào libgit2thư mục mới được tạo, bạn sẽ thấy các tệp dự án ở đó, sẵn sàng để chỉnh sửa hoặc sử dụng.
+
+Nếu bạn muốn sao chép kho lưu trữ vào một thư mục có tên khác với libgit2, bạn có thể chỉ định tên thư mục mới làm đối số bổ sung:
+
+$ git clone https://github.com/libgit2/libgit2 mylibgit
+Lệnh đó thực hiện chức năng tương tự như lệnh trước, nhưng thư mục đích được gọi là mylibgit.
+
+Git có một số giao thức truyền tải khác nhau mà bạn có thể sử dụng. Ví dụ trước sử dụng https://giao thức , nhưng bạn cũng có thể thấy git://hoặc user@server:path/to/repo.git, sử dụng giao thức truyền tải SSH. Bài viết " Cài đặt Git trên máy chủ" sẽ giới thiệu tất cả các tùy chọn có sẵn mà máy chủ có thể thiết lập để truy cập kho lưu trữ Git của bạn cũng như ưu điểm và nhược điểm của từng tùy chọn

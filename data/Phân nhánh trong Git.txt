@@ -1,0 +1,121 @@
+Phân nhánh trong Git - Khái niệm tóm tắt về các nhánh
+Hầu hết các hệ thống quản lý phiên bản (VCS) đều hỗ trợ một số hình thức phân nhánh. Phân nhánh có nghĩa là bạn tách khỏi nhánh phát triển chính và tiếp tục công việc mà không ảnh hưởng đến nhánh chính đó. Trong nhiều công cụ VCS, đây là một quá trình khá tốn kém, thường yêu cầu bạn tạo một bản sao mới của thư mục mã nguồn, điều này có thể mất nhiều thời gian đối với các dự án lớn.
+
+Một số người gọi mô hình phân nhánh của Git là "tính năng đột phá" của nó, và điều này chắc chắn đã tạo nên sự khác biệt của Git trong cộng đồng hệ thống kiểm soát phiên bản (VCS). Tại sao nó lại đặc biệt đến vậy? Cách Git phân nhánh cực kỳ nhẹ nhàng, giúp các thao tác phân nhánh gần như tức thời, và việc chuyển đổi qua lại giữa các nhánh cũng nhanh chóng không kém. Không giống như nhiều VCS khác, Git khuyến khích các quy trình làm việc thường xuyên phân nhánh và hợp nhất, thậm chí nhiều lần trong một ngày. Hiểu và làm chủ tính năng này sẽ cung cấp cho bạn một công cụ mạnh mẽ và độc đáo, và có thể thay đổi hoàn toàn cách bạn phát triển phần mềm.
+
+Tóm tắt về các nhánh cây
+Để thực sự hiểu cách Git thực hiện việc phân nhánh, chúng ta cần lùi lại một bước và xem xét cách Git lưu trữ dữ liệu của nó.
+
+Như bạn có thể nhớ từ bài viết "Git là gì?" , Git không lưu trữ dữ liệu dưới dạng một chuỗi các tập hợp thay đổi hoặc sự khác biệt, mà thay vào đó là một chuỗi các ảnh chụp nhanh .
+
+Khi bạn thực hiện một commit, Git sẽ lưu trữ một đối tượng commit chứa con trỏ đến bản sao lưu nội dung bạn đã thêm vào vùng staging. Đối tượng này cũng chứa tên và địa chỉ email của tác giả, thông báo bạn đã nhập và các con trỏ đến commit hoặc các commit ngay trước commit này (commit cha của nó): không có commit cha nào cho commit ban đầu, một commit cha cho một commit thông thường và nhiều commit cha cho một commit được tạo ra từ việc hợp nhất hai hoặc nhiều nhánh.
+
+Để hình dung điều này, hãy giả sử bạn có một thư mục chứa ba tệp, và bạn thêm tất cả chúng vào khu vực chờ (staging area) rồi commit. Quá trình thêm tệp sẽ tính toán mã kiểm tra (checksum) cho mỗi tệp (mã băm SHA-1 mà chúng ta đã đề cập trong phần "Git là gì?" ), lưu trữ phiên bản đó của tệp trong kho lưu trữ Git (Git gọi chúng là blob ), và thêm mã kiểm tra đó vào khu vực chờ:
+
+$ git add README test.rb LICENSE
+$ git commit -m 'Initial commit'
+Khi bạn tạo commit bằng cách chạy lệnh ` git commit` git commit, Git sẽ kiểm tra mã băm của từng thư mục con (trong trường hợp này, chỉ là thư mục gốc của dự án) và lưu trữ chúng dưới dạng một đối tượng cây trong kho lưu trữ Git. Sau đó, Git tạo một đối tượng commit chứa siêu dữ liệu và một con trỏ đến cây dự án gốc để nó có thể tạo lại ảnh chụp nhanh đó khi cần thiết.
+
+Kho lưu trữ Git của bạn hiện chứa năm đối tượng: ba blob (mỗi blob đại diện cho nội dung của một trong ba tệp), một cây liệt kê nội dung của thư mục và chỉ định tên tệp nào được lưu trữ dưới dạng blob nào, và một commit chứa con trỏ đến cây gốc đó cùng tất cả siêu dữ liệu của commit.
+
+Một commit và cây của nó
+Hình 9. Một commit và cây của nó
+Nếu bạn thực hiện một số thay đổi và commit lại, lần commit tiếp theo sẽ lưu trữ một con trỏ đến lần commit ngay trước đó.
+
+Những người cam kết và cha mẹ của họ
+Hình 10. Những người phạm tội và cha mẹ của họ
+Trong Git, nhánh chỉ đơn giản là một con trỏ di động nhẹ trỏ đến một trong những commit. Tên nhánh mặc định trong Git là `<commit>` master. Khi bạn bắt đầu thực hiện các commit, bạn sẽ được cấp một masternhánh trỏ đến commit cuối cùng bạn đã thực hiện. Mỗi lần bạn commit, mastercon trỏ nhánh sẽ tự động di chuyển về phía trước.
+
+Ghi chú
+Nhánh "master" trong Git không phải là một nhánh đặc biệt. Nó hoàn toàn giống như bất kỳ nhánh nào khác. Lý do duy nhất khiến hầu hết các kho lưu trữ đều có nhánh này là vì lệnh git inittạo ra nó theo mặc định và hầu hết mọi người không bận tâm đến việc thay đổi nó.
+
+Một nhánh và lịch sử commit của nó
+Hình 11. Một nhánh và lịch sử commit của nó
+Tạo nhánh mới
+Điều gì xảy ra khi bạn tạo một nhánh mới? Việc này tạo ra một con trỏ mới để bạn di chuyển. Giả sử bạn muốn tạo một nhánh mới có tên là testing. Bạn thực hiện điều này bằng git branchlệnh:
+
+$ git branch testing
+Thao tác này tạo ra một con trỏ mới trỏ đến cùng một commit mà bạn đang xem.
+
+Hai nhánh cùng trỏ đến một chuỗi các commit.
+Hình 12. Hai nhánh cùng trỏ đến một chuỗi các commit.
+Git biết bạn đang ở nhánh nào bằng cách nào? Nó giữ một con trỏ đặc biệt gọi là ` <branch> HEAD`. Lưu ý rằng điều này khác biệt rất nhiều so với khái niệm ` HEAD<branch>` trong các hệ thống quản lý phiên bản khác mà bạn có thể đã quen thuộc, chẳng hạn như Subversion hoặc CVS. Trong Git, đây là con trỏ đến nhánh cục bộ mà bạn hiện đang làm việc. Trong trường hợp này, bạn vẫn đang ở nhánh `<branch> master`. git branchLệnh `git add` chỉ tạo một nhánh mới — nó không chuyển sang nhánh đó.
+
+ĐẦU chỉ vào một cành cây
+Hình 13. ĐẦU chỉ vào một cành cây
+Bạn có thể dễ dàng thấy điều này bằng cách chạy một git loglệnh đơn giản hiển thị vị trí các con trỏ nhánh đang trỏ tới. Tùy chọn này được gọi là --decorate.
+
+$ git log --oneline --decorate
+f30ab (HEAD -> master, testing) Add feature #32 - ability to add new formats to the central interface
+34ac2 Fix bug #1328 - stack overflow under certain conditions
+98ca9 Initial commit
+Bạn có thể thấy các masternhánh testingnằm ngay bên cạnh f30abcommit đó.
+
+Chuyển nhánh
+Để chuyển sang nhánh hiện có, bạn chạy git checkoutlệnh. Hãy chuyển sang testingnhánh mới:
+
+$ git checkout testing
+Thao tác này di chuyển HEADđể chỉ vào testingnhánh cây.
+
+HEAD trỏ đến nhánh hiện tại
+Hình 14. Đầu chỉ vào nhánh hiện tại
+Điều đó có ý nghĩa gì? Được rồi, hãy thực hiện một thao tác commit khác:
+
+$ vim test.rb
+$ git commit -a -m 'Make a change'
+Nhánh HEAD sẽ tiến lên khi có một commit được thực hiện.
+Hình 15. Nhánh HEAD di chuyển về phía trước khi có một commit được thực hiện.
+Điều này khá thú vị, vì testingnhánh của bạn đã tiến lên phía trước, nhưng masternó vẫn trỏ đến commit mà bạn đang ở khi chạy lệnh git checkoutchuyển nhánh. Hãy chuyển trở lại nhánh masterban đầu:
+
+$ git checkout master
+Ghi chú
+git logKhông phải lúc nào cũng hiển thị tất cả các nhánh .
+Nếu bạn chạy lệnh git logngay bây giờ, bạn có thể tự hỏi nhánh "testing" mà bạn vừa tạo đã đi đâu, vì nó sẽ không xuất hiện trong kết quả đầu ra.
+
+Nhánh đó chưa biến mất; Git chỉ không biết rằng bạn quan tâm đến nhánh đó và nó đang cố gắng hiển thị cho bạn những gì nó nghĩ bạn quan tâm. Nói cách khác, theo mặc định, git lognó sẽ chỉ hiển thị lịch sử commit bên dưới nhánh mà bạn đã checkout.
+
+Để hiển thị lịch sử commit cho nhánh mong muốn, bạn phải chỉ định rõ ràng: git log testing`<branch_history_for_key>`. Để hiển thị tất cả các nhánh, hãy thêm `<branch_history_for_key>` --allvào git loglệnh của bạn.
+
+Đầu sẽ di chuyển khi bạn thanh toán.
+Hình 16. HEAD di chuyển khi bạn thanh toán
+Lệnh đó thực hiện hai việc. Nó di chuyển con trỏ HEAD trở lại để trỏ đến masternhánh, và nó khôi phục các tệp trong thư mục làm việc của bạn về ảnh chụp nhanh mà mastercon trỏ trỏ đến. Điều này cũng có nghĩa là những thay đổi bạn thực hiện từ thời điểm này trở đi sẽ khác với phiên bản cũ hơn của dự án. Về cơ bản, nó đảo ngược công việc bạn đã làm trong testingnhánh của mình để bạn có thể đi theo một hướng khác.
+
+Ghi chú
+Việc chuyển đổi nhánh sẽ thay đổi các tập tin trong thư mục làm việc của bạn.
+Điều quan trọng cần lưu ý là khi bạn chuyển đổi nhánh trong Git, các tệp trong thư mục làm việc của bạn sẽ thay đổi. Nếu bạn chuyển sang nhánh cũ hơn, thư mục làm việc của bạn sẽ được khôi phục về trạng thái như lần cuối bạn commit trên nhánh đó. Nếu Git không thể thực hiện việc này một cách trơn tru, nó sẽ không cho phép bạn chuyển đổi.
+
+Hãy thực hiện một vài thay đổi và cam kết lại:
+
+$ vim test.rb
+$ git commit -a -m 'Make other changes'
+Giờ đây lịch sử dự án của bạn đã phân nhánh (xem Lịch sử phân nhánh ). Bạn đã tạo và chuyển sang một nhánh, thực hiện một số công việc trên đó, rồi chuyển trở lại nhánh chính và thực hiện các công việc khác. Cả hai thay đổi đó đều được tách biệt trong các nhánh riêng biệt: bạn có thể chuyển đổi qua lại giữa các nhánh và hợp nhất chúng lại với nhau khi bạn sẵn sàng. Và bạn đã làm tất cả điều đó chỉ với các lệnh đơn giản như branch, checkout, và commit.
+
+Lịch sử khác biệt
+Hình 17. Lịch sử phân kỳ
+Bạn cũng có thể dễ dàng thấy điều này bằng git loglệnh. Nếu bạn chạy lệnh git log --oneline --decorate --graph --allnày, nó sẽ in ra lịch sử các commit của bạn, hiển thị vị trí các con trỏ nhánh và cách lịch sử của bạn đã phân nhánh.
+
+$ git log --oneline --decorate --graph --all
+* c2b9e (HEAD, master) Make other changes
+| * 87ab2 (testing) Make a change
+|/
+* f30ab Add feature #32 - ability to add new formats to the central interface
+* 34ac2 Fix bug #1328 - stack overflow under certain conditions
+* 98ca9 Initial commit of my project
+Vì trong Git, nhánh thực chất là một tệp đơn giản chứa mã kiểm tra SHA-1 gồm 40 ký tự của commit mà nó trỏ đến, nên việc tạo và xóa nhánh rất nhanh chóng. Tạo một nhánh mới chỉ nhanh và đơn giản như ghi 41 byte vào một tệp (40 ký tự và một dòng mới).
+
+Điều này hoàn toàn trái ngược với cách hầu hết các công cụ VCS cũ tạo nhánh, vốn liên quan đến việc sao chép tất cả các tệp của dự án vào một thư mục thứ hai. Quá trình này có thể mất vài giây hoặc thậm chí vài phút, tùy thuộc vào kích thước của dự án, trong khi ở Git, quá trình này luôn diễn ra tức thời. Ngoài ra, vì chúng ta ghi lại nhánh cha khi commit, việc tìm kiếm cơ sở hợp nhất phù hợp để hợp nhất được thực hiện tự động và nhìn chung rất dễ dàng. Những tính năng này giúp khuyến khích các nhà phát triển tạo và sử dụng nhánh thường xuyên.
+
+Hãy cùng xem tại sao bạn nên làm như vậy.
+
+Ghi chú
+Tạo nhánh mới và chuyển sang nhánh đó cùng lúc.
+Thông thường, người ta tạo một nhánh mới và muốn chuyển sang nhánh mới đó cùng lúc — điều này có thể được thực hiện trong một thao tác duy nhất với git checkout -b <newbranchname>.
+
+Ghi chú
+Từ phiên bản Git 2.23 trở đi, bạn có thể sử dụng git switchthay vì git checkoutđể:
+
+Chuyển sang nhánh hiện có: git switch testing-branch.
+
+Tạo một nhánh mới và chuyển sang nhánh đó: git switch -c new-branch. -cCờ này có nghĩa là tạo, bạn cũng có thể sử dụng cờ đầy đủ: --create.
+
+Quay lại nhánh bạn đã chọn trước đó: git switch -.

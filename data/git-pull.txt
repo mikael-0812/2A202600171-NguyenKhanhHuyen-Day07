@@ -1,0 +1,578 @@
+git-pull - Lấy dữ liệu từ và tích hợp với kho lưu trữ khác hoặc nhánh cục bộ.
+
+TÓM TẮT
+git pull[ <tùy chọn> ] [ <kho lưu trữ> [ <tham chiếu> …​]]
+SỰ MIÊU TẢ
+Tích hợp các thay đổi từ kho lưu trữ từ xa vào nhánh hiện tại.
+
+Đầu tiên, git pullchương trình chạy git fetchvới cùng các tham số (ngoại trừ các tùy chọn hợp nhất) để lấy nhánh từ xa. Sau đó, nó quyết định nhánh từ xa nào sẽ được tích hợp: nếu bạn chạy git pull mà không có tham số nào, mặc định sẽ là nhánh gốc của nhánh hiện tại. Sau đó, nó tích hợp nhánh đó vào nhánh hiện tại.
+
+Có 4 tùy chọn chính để tích hợp nhánh từ xa:
+
+git pull --ff-onlyChỉ thực hiện cập nhật "nhanh" (fast-forward): thao tác này sẽ thất bại nếu nhánh cục bộ của bạn khác biệt so với nhánh từ xa. Đây là cài đặt mặc định.
+
+git pull --rebasechạygit rebase
+
+git pull --no-rebasechạy git merge.
+
+git pull --squashchạygit merge --squash
+
+Bạn cũng có thể thiết lập các tùy chọn cấu hình pull.rebase, pull.squash, hoặc pull.ffvới hành vi mà bạn mong muốn.
+
+Nếu xảy ra xung đột hợp nhất trong quá trình hợp nhất hoặc tái cơ sở mà bạn không muốn xử lý, bạn có thể hủy bỏ một cách an toàn bằng cách sử dụng git merge --aborthoặc git rebase --abort.
+
+TÙY CHỌN
+<kho lưu trữ>
+Kho lưu trữ "từ xa" để lấy dữ liệu. Đây có thể là một URL (xem phần URL GIT bên dưới) hoặc tên của một kho lưu trữ từ xa (xem phần KHO LƯU TRỮ TỪ XA bên dưới).
+
+Mặc định là máy chủ upstream đã được cấu hình cho nhánh hiện tại, hoặc origin. Xem PHẦN NHÁNH UPSTREAM bên dưới để biết thêm chi tiết về cách cấu hình máy chủ upstream.
+
+<refspec>
+Chọn nhánh hoặc tham chiếu nào khác để lấy và tích hợp vào nhánh hiện tại, ví dụ như maintrong git pull origin main. Mặc định là nhánh thượng nguồn đã được cấu hình cho nhánh hiện tại.
+
+Đây có thể là một nhánh, thẻ hoặc tập hợp các tham chiếu khác. Xem <refspec> bên dưới phần "Các tùy chọn liên quan đến việc tìm nạp" để biết cú pháp đầy đủ và HÀNH VI MẶC ĐỊNH bên dưới để biết cách git pullsử dụng đối số này để xác định nhánh từ xa nào cần tích hợp.
+
+-q
+--quiet
+Thông tin này được truyền đến cả git-fetch cơ bản để ngăn chặn việc báo cáo trong quá trình truyền tải và git-merge cơ bản để ngăn chặn đầu ra trong quá trình hợp nhất.
+
+-v
+--verbose
+Truyền tham số --verbosecho git-fetch và git-merge.
+
+--recurse-submodules[ =( yes| on-demand| no)]
+--no-recurse-submodules
+Tùy chọn này kiểm soát xem các cam kết mới của các mô-đun con đã được điền có nên được tải về hay không, và liệu cây làm việc của các mô-đun con đang hoạt động có nên được cập nhật hay không (xem git-fetch[1] , git-config[1] và gitmodules[5] ).
+
+Nếu việc checkout được thực hiện thông qua rebase, các commit cục bộ của submodule cũng được rebase theo.
+
+Nếu quá trình cập nhật được thực hiện thông qua hợp nhất, các xung đột giữa các mô-đun con sẽ được giải quyết và kiểm xuất.
+
+Các tùy chọn liên quan đến việc sáp nhập
+--commit
+--no-commit
+Thực hiện hợp nhất và lưu kết quả. Tùy chọn này có thể được sử dụng để ghi đè --no-commit. Chỉ hữu ích khi hợp nhất.
+
+Thực --no-commithiện việc hợp nhất và dừng lại ngay trước khi tạo commit hợp nhất, để người dùng có cơ hội kiểm tra và tinh chỉnh thêm kết quả hợp nhất trước khi commit.
+
+Lưu ý rằng các bản cập nhật nhanh không tạo ra commit hợp nhất và do đó không có cách nào để ngăn chặn các thao tác hợp nhất đó bằng --no-commit. Vì vậy, nếu bạn muốn đảm bảo nhánh của mình không bị thay đổi hoặc cập nhật bởi lệnh hợp nhất, hãy sử dụng --no-ffvới --no-commit.
+
+--edit
+-e
+--no-edit
+Trước khi hoàn tất việc hợp nhất tự động, hãy mở trình soạn thảo để chỉnh sửa thêm thông báo hợp nhất được tạo tự động, giúp người dùng giải thích và biện minh cho việc hợp nhất. --no-editTùy chọn này cũng có thể được sử dụng để chấp nhận thông báo được tạo tự động (tuy nhiên, điều này thường không được khuyến khích).
+
+Các tập lệnh cũ có thể phụ thuộc vào hành vi trước đây là không cho phép người dùng chỉnh sửa thông báo nhật ký hợp nhất. Chúng sẽ thấy một trình chỉnh sửa được mở khi chạy git merge. Để dễ dàng điều chỉnh các tập lệnh đó cho phù hợp với hành vi được cập nhật, biến môi trường GIT_MERGE_AUTOEDITcó thể được đặt thành noở đầu tập lệnh.
+
+--cleanup=<chế độ>
+Tùy chọn này xác định cách thông báo hợp nhất sẽ được dọn dẹp trước khi cam kết. Xem git-commit[1] để biết thêm chi tiết. Ngoài ra, nếu <mode> được cung cấp giá trị là scissors, scissors sẽ được thêm vào MERGE_MSGtrước khi được chuyển đến cơ chế cam kết trong trường hợp xung đột hợp nhất.
+
+--ff-only
+Chỉ cập nhật lịch sử mới nếu không có lịch sử cục bộ khác biệt. Đây là cài đặt mặc định khi không có phương pháp nào được cung cấp để dung hòa các lịch sử khác biệt (thông qua --rebasecác cờ).
+
+--ff
+--no-ff
+Khi hợp nhất thay vì tái cơ sở, tùy chọn này chỉ định cách xử lý việc hợp nhất khi lịch sử được hợp nhất đã là hậu duệ của lịch sử hiện tại. Nếu yêu cầu hợp nhất, --ffđây là tùy chọn mặc định trừ khi hợp nhất một thẻ được chú thích (và có thể được ký) không được lưu trữ ở vị trí tự nhiên của nó trong hệ refs/tags/ thống phân cấp, trong trường hợp đó, tùy chọn này --no-ffđược giả định.
+
+Khi --ffcó thể, hãy giải quyết việc hợp nhất dưới dạng fast-forward (chỉ cập nhật con trỏ nhánh để khớp với nhánh đã hợp nhất; không tạo commit hợp nhất). Khi không thể (khi lịch sử được hợp nhất không phải là hậu duệ của lịch sử hiện tại), hãy tạo commit hợp nhất.
+
+Với tùy chọn này --no-ff, hãy tạo một commit hợp nhất trong mọi trường hợp, ngay cả khi việc hợp nhất đó có thể được giải quyết bằng cách thực hiện fast-forward.
+
+-S[ <key-id> ]
+--gpg-sign[ =<key-id> ]
+--no-gpg-sign
+Ký GPG vào commit hợp nhất kết quả. Tham số <key-id> là tùy chọn và mặc định là danh tính của người thực hiện commit; nếu được chỉ định, nó phải được gắn liền với tùy chọn mà không có khoảng trắng. --no-gpg-sign Điều này hữu ích để chống lại cả commit.gpgSignbiến cấu hình và các thao tác trước đó --gpg-sign.
+
+--log[ =<n> ]
+--no-log
+Ngoài tên nhánh, hãy điền vào thông báo nhật ký các mô tả một dòng từ tối đa <n> cam kết thực tế đang được hợp nhất. Xem thêm git-fmt-merge-msg[1] . Chỉ hữu ích khi hợp nhất.
+
+Không --no-lognên liệt kê các mô tả một dòng từ các commit thực tế đang được hợp nhất.
+
+--signoff
+--no-signoff
+Thêm Signed-off-byphần ghi chú của người thực hiện commit vào cuối thông báo nhật ký commit. Ý nghĩa của việc ký xác nhận phụ thuộc vào dự án mà bạn đang đóng góp. Ví dụ, nó có thể chứng nhận rằng người thực hiện commit có quyền gửi tác phẩm theo giấy phép của dự án hoặc đồng ý với một số cam kết của người đóng góp, chẳng hạn như Chứng chỉ Nguồn gốc Nhà phát triển (Developer Certificate of Origin). (Xem https://developercertificate.org để biết chứng chỉ được sử dụng bởi nhân Linux và các dự án Git.) Hãy tham khảo tài liệu hoặc liên hệ với ban lãnh đạo của dự án mà bạn đang đóng góp để hiểu cách thức sử dụng các ký xác nhận này trong dự án đó.
+
+Tùy chọn này --no-signoffcó thể được sử dụng để hủy bỏ một --signoff tùy chọn đã được thiết lập trước đó trên dòng lệnh.
+
+Git không (và sẽ không) có biến cấu hình để bật --signofftùy chọn dòng lệnh theo mặc định; xem commit.signoffmục trong gitfaq[7] để biết thêm chi tiết.
+
+--stat
+-n
+--no-stat
+Hiển thị kết quả diffstat sau khi hợp nhất. Kết quả diffstat cũng được điều khiển bởi tùy chọn cấu hình merge.stat.
+
+Có -nhoặc --no-statkhông hiển thị số liệu thống kê khác biệt (diffstat) sau khi hợp nhất.
+
+--compact-summary
+Hiển thị bản tóm tắt ngắn gọn ở cuối quá trình hợp nhất.
+
+--squash
+--no-squash
+Tạo cây làm việc và trạng thái chỉ mục như thể một thao tác hợp nhất thực sự đã xảy ra (ngoại trừ thông tin hợp nhất), nhưng không thực sự tạo commit, di chuyển HEADhoặc ghi lại $GIT_DIR/MERGE_HEAD (để git commitlệnh tiếp theo tạo ra một commit hợp nhất). Điều này cho phép bạn tạo một commit duy nhất trên nhánh hiện tại có tác dụng tương tự như việc hợp nhất một nhánh khác (hoặc nhiều nhánh hơn trong trường hợp "bạch tuộc").
+
+Thực --no-squashhiện hợp nhất và cam kết kết quả. Tùy chọn này có thể được sử dụng để ghi đè --squash.
+
+Với --squash, --commitđiều này không được phép và sẽ thất bại.
+
+Chỉ hữu ích khi hợp nhất.
+
+--verify
+--no-verify
+Theo mặc định, các hook pre-merge và commit-msg được chạy. Khi --no-verifyđược cung cấp, chúng sẽ bị bỏ qua. Xem thêm githooks[5] . Chỉ hữu ích khi hợp nhất.
+
+-s <chiến lược>
+--strategy=<chiến lược>
+Sử dụng chiến lược hợp nhất đã cho; có thể cung cấp nhiều hơn một lần để chỉ định thứ tự thử nghiệm. Nếu không có -stùy chọn nào, một danh sách các chiến lược tích hợp sẵn sẽ được sử dụng thay thế ( ortkhi hợp nhất một nhánh chính duy nhất, octopustrong các trường hợp khác).
+
+-X <tùy chọn>
+--strategy-option=<tùy chọn>
+Truyền tùy chọn cụ thể của chiến lược hợp nhất vào chiến lược hợp nhất.
+
+--verify-signatures
+--no-verify-signatures
+Hãy xác minh rằng commit đầu tiên của nhánh phụ đang được hợp nhất được ký bằng một khóa hợp lệ, tức là một khóa có uid hợp lệ: trong mô hình tin cậy mặc định, điều này có nghĩa là khóa ký đã được ký bởi một khóa đáng tin cậy. Nếu commit đầu tiên của nhánh phụ không được ký bằng một khóa hợp lệ, quá trình hợp nhất sẽ bị hủy bỏ.
+
+Chỉ hữu ích khi hợp nhất.
+
+--summary
+--no-summary
+Các từ đồng nghĩa với --statvà --no-stat; những từ này đã lỗi thời và sẽ bị loại bỏ trong tương lai.
+
+--autostash
+--no-autostash
+Tự động tạo một mục tạm thời trong kho lưu trữ trước khi thao tác bắt đầu, ghi lại mục đó vào ref MERGE_AUTOSTASH và áp dụng sau khi thao tác kết thúc. Điều này có nghĩa là bạn có thể chạy thao tác trên một worktree chưa được chỉnh sửa. Tuy nhiên, hãy sử dụng cẩn thận: việc áp dụng kho lưu trữ cuối cùng sau khi hợp nhất thành công có thể dẫn đến các xung đột không nhỏ.
+
+--allow-unrelated-histories
+Theo mặc định, git mergelệnh sẽ từ chối hợp nhất các lịch sử không có chung tổ tiên. Tùy chọn này có thể được sử dụng để ghi đè lên tính năng an toàn này khi hợp nhất lịch sử của hai dự án bắt đầu độc lập. Vì đây là trường hợp rất hiếm gặp, nên không có biến cấu hình nào để bật tính năng này theo mặc định hoặc sẽ được thêm vào trong tương lai.
+
+Chỉ hữu ích khi hợp nhất.
+
+-r
+--rebase[ =( true| merges| false| interactive)]
+true
+Lệnh này sẽ rebase nhánh hiện tại lên trên nhánh upstream sau khi fetch. Nếu có một nhánh theo dõi từ xa tương ứng với nhánh upstream và nhánh upstream đã được rebase kể từ lần fetch cuối cùng, lệnh rebase sẽ sử dụng thông tin đó để tránh rebase các thay đổi không cục bộ. Đây là cài đặt mặc định.
+
+merges
+rebase bằng cách sử dụng git rebase --rebase-mergessao cho các cam kết hợp nhất cục bộ được bao gồm trong rebase (xem git-rebase[1] để biết chi tiết).
+
+false
+Hợp nhất nhánh nguồn vào nhánh hiện tại.
+
+interactive
+Kích hoạt chế độ tương tác của rebase.
+
+Xem pull.rebase, branch.<name>.rebase và branch.autoSetupRebasetrong git-config[1] nếu bạn muốn git pullluôn sử dụng --rebasethay vì hợp nhất.
+
++
+
+Ghi chú
+Đây là một phương thức hoạt động tiềm ẩn nguy hiểm . Nó viết lại lịch sử, điều này không tốt khi bạn đã công bố lịch sử đó rồi. Không sử dụng tùy chọn này trừ khi bạn đã đọc kỹ git-rebase[1] .
+--no-rebase
+Đây là cách viết tắt của --rebase=false.
+
+Các tùy chọn liên quan đến việc tìm nạp
+--all
+--no-all
+Lấy tất cả các remote, ngoại trừ những remote có biến cấu hình remote.<name>.skipFetchAll được thiết lập. Thao tác này sẽ ghi đè lên biến cấu hình đó fetch.all.
+
+-a
+--append
+Thêm tên tham chiếu và tên đối tượng của các tham chiếu đã được truy xuất vào nội dung hiện có của .git/FETCH_HEAD. Nếu không có tùy chọn này, dữ liệu cũ trong .git/FETCH_HEADsẽ bị ghi đè.
+
+--atomic
+Sử dụng giao dịch nguyên tử để cập nhật các tham chiếu cục bộ. Hoặc tất cả các tham chiếu được cập nhật, hoặc nếu xảy ra lỗi, không có tham chiếu nào được cập nhật.
+
+--depth=<độ sâu>
+Giới hạn việc lấy về số lượng commit được chỉ định từ đầu mỗi nhánh lịch sử từ xa. Nếu lấy về kho lưu trữ nông được tạo bằng git clonetùy chọn --depth=<depth> (xem git-clone[1] ), hãy làm sâu thêm hoặc rút ngắn lịch sử đến số lượng commit được chỉ định. Các thẻ cho các commit được làm sâu thêm sẽ không được lấy về.
+
+--deepen=<độ sâu>
+Tương tự như --depth, ngoại trừ việc nó chỉ định số lượng commit tính từ ranh giới nông hiện tại thay vì từ đỉnh của mỗi lịch sử nhánh từ xa.
+
+--shallow-since=<ngày>
+Mở rộng hoặc thu hẹp lịch sử của một kho lưu trữ nông để bao gồm tất cả các commit có thể truy cập được sau ngày <date> .
+
+--shallow-exclude=<ref>
+Làm sâu hoặc rút ngắn lịch sử của một kho lưu trữ nông để loại trừ các commit có thể truy cập được từ một nhánh hoặc thẻ từ xa được chỉ định. Tùy chọn này có thể được chỉ định nhiều lần.
+
+--unshallow
+Nếu kho lưu trữ nguồn đã hoàn chỉnh, hãy chuyển đổi kho lưu trữ nông (shallow repository) thành kho lưu trữ hoàn chỉnh, loại bỏ tất cả các hạn chế do kho lưu trữ nông gây ra.
+
+Nếu kho lưu trữ nguồn có cấu trúc nông, hãy tải về càng nhiều dữ liệu càng tốt để kho lưu trữ hiện tại có cùng lịch sử với kho lưu trữ nguồn.
+
+--update-shallow
+Theo mặc định, khi lấy dữ liệu từ một kho lưu trữ nông (shallow repository), git fetchhệ thống sẽ từ chối các tham chiếu cần cập nhật .git/shallow. Tùy chọn này sẽ cập nhật .git/shallowvà chấp nhận các tham chiếu đó.
+
+--negotiation-tip=( <commit> | <glob> )
+Theo mặc định, Git sẽ báo cáo cho máy chủ các commit có thể truy cập được từ tất cả các tham chiếu cục bộ để tìm các commit chung, nhằm mục đích giảm kích thước của tệp gói nhận được. Nếu được chỉ định, Git sẽ chỉ báo cáo các commit có thể truy cập được từ các đầu tham chiếu được chỉ định. Điều này hữu ích để tăng tốc độ tải về khi người dùng biết tham chiếu cục bộ nào có khả năng có các commit chung với tham chiếu thượng nguồn đang được tải về.
+
+Tùy chọn này có thể được chỉ định nhiều lần; nếu vậy, Git sẽ báo cáo các commit có thể truy cập được từ bất kỳ commit nào đã cho.
+
+Đối số cho tùy chọn này có thể là một mẫu glob trên tên tham chiếu, một tham chiếu, hoặc mã SHA-1 (có thể được viết tắt) của một commit. Việc chỉ định một mẫu glob tương đương với việc chỉ định tùy chọn này nhiều lần, mỗi lần cho một tên tham chiếu khớp.
+
+Xem thêm các biến cấu hình fetch.negotiationAlgorithmvà push.negotiate được ghi lại trong git-config[1] và --negotiate-onlytùy chọn bên dưới.
+
+--negotiate-only
+Không cần lấy bất kỳ dữ liệu nào từ máy chủ, mà thay vào đó hãy in ra các phần tử cha của các --negotiation-tip=đối số được cung cấp, những phần tử này chúng ta có chung với máy chủ.
+
+Điều này không tương thích với --recurse-submodules=( yes| on-demand) . Về mặt nội bộ, điều này được sử dụng để triển khai push.negotiatetùy chọn, xem git-config[1] .
+
+--dry-run
+Hãy cho thấy những gì sẽ được thực hiện mà không cần thay đổi gì cả.
+
+--porcelain
+In đầu ra ra đầu ra chuẩn ở định dạng dễ phân tích cho các tập lệnh. Xem phần OUTPUT trong git-fetch[1] để biết chi tiết.
+
+Điều này không tương thích với --recurse-submodules=( yes| on-demand) và được ưu tiên hơn fetch.outputtùy chọn cấu hình.
+
+-f
+--force
+Khi git fetchđược sử dụng với refspec <src> :<dst> , nó có thể từ chối cập nhật nhánh cục bộ như đã thảo luận trong phần <refspec> của tài liệu git-fetch[1] . Tùy chọn này ghi đè lên kiểm tra đó.
+
+-k
+--keep
+Giữ lại gói đã tải xuống.
+
+--prefetch
+Sửa đổi refspec đã cấu hình để đặt tất cả các tham chiếu vào refs/prefetch/không gian tên. Xem prefetchnhiệm vụ trong git-maintenance[1] .
+
+-p
+--prune
+Trước khi tải về, hãy xóa bất kỳ tham chiếu theo dõi từ xa nào không còn tồn tại trên máy chủ từ xa. Các thẻ sẽ không bị loại bỏ nếu chúng chỉ được tải về do tính năng tự động theo dõi thẻ mặc định hoặc do một --tagstùy chọn nào đó. Tuy nhiên, nếu các thẻ được tải về do một refspec rõ ràng (trên dòng lệnh hoặc trong cấu hình máy chủ từ xa, ví dụ: nếu máy chủ từ xa được sao chép với --mirrortùy chọn đó), thì chúng cũng sẽ bị loại bỏ. "Supplier" --prune-tagslà cách viết tắt của việc cung cấp refspec của thẻ.
+
+--no-tags
+Theo mặc định, các thẻ trỏ đến các đối tượng được tải xuống từ kho lưu trữ từ xa sẽ được lấy và lưu trữ cục bộ. Tùy chọn này vô hiệu hóa việc theo dõi thẻ tự động này. Hành vi mặc định cho kho lưu trữ từ xa có thể được chỉ định bằng cài đặt remote.<name>.tagOpt . Xem git-config[1] .
+
+--refmap=<refspec>
+Khi lấy các tham chiếu được liệt kê trên dòng lệnh, hãy sử dụng refspec được chỉ định (có thể được cung cấp nhiều lần) để ánh xạ các tham chiếu đến các nhánh theo dõi từ xa, thay vì các giá trị của biến cấu hình remote.<name>.fetch cho kho lưu trữ từ xa. Việc cung cấp một <refspec> trống cho --refmaptùy chọn này sẽ khiến Git bỏ qua các refspec đã cấu hình và hoàn toàn dựa vào các refspec được cung cấp dưới dạng đối số dòng lệnh. Xem phần "Các nhánh theo dõi từ xa đã cấu hình" để biết thêm chi tiết.
+
+-t
+--tags
+Tải tất cả các thẻ từ xa (tức là tải các thẻ từ xa refs/tags/*vào các thẻ cục bộ có cùng tên), ngoài những thứ khác lẽ ra sẽ được tải. Chỉ sử dụng tùy chọn này sẽ không khiến các thẻ bị cắt tỉa, ngay cả khi --prune được sử dụng (mặc dù các thẻ vẫn có thể bị cắt tỉa nếu chúng cũng là đích đến của một refspec rõ ràng; xem --prune).
+
+-j <n>
+--jobs=<n>
+Song song hóa tất cả các hình thức truy xuất dữ liệu lên đến <n> tác vụ cùng một lúc.
+
+Nếu --multipletùy chọn được chỉ định, các remote khác nhau sẽ được tải về song song. Nếu nhiều submodule được tải về, chúng sẽ được tải về song song. Để điều khiển chúng một cách độc lập, hãy sử dụng cài đặt cấu hình fetch.parallelvà submodule.fetchJobs(xem git-config[1] ).
+
+Thông thường, việc truy xuất đệ quy song song và truy xuất từ ​​nhiều máy chủ từ xa sẽ nhanh hơn. Theo mặc định, các thao tác truy xuất được thực hiện tuần tự, chứ không phải song song.
+
+--set-upstream
+Nếu tải xuống từ xa thành công, hãy thêm tham chiếu ngược dòng (theo dõi), được sử dụng bởi git-pull không có đối số[1] và các lệnh khác. Để biết thêm thông tin, hãy xem branch.<name>.merge và branch.<name>.remote trong git-config[1] .
+
+--upload-pack <upload-pack>
+Khi được cung cấp và kho lưu trữ cần lấy dữ liệu được xử lý bởi git fetch-pack, tham --exec=số <upload-pack> được truyền cho lệnh để chỉ định đường dẫn không mặc định cho lệnh được chạy ở phía bên kia.
+
+--progress
+Theo mặc định, trạng thái tiến trình được báo cáo trên luồng lỗi chuẩn khi nó được gắn vào thiết bị đầu cuối, trừ khi -q có chỉ định khác. Cờ này buộc hiển thị trạng thái tiến trình ngay cả khi luồng lỗi chuẩn không được hướng đến thiết bị đầu cuối.
+
+-o <tùy chọn>
+--server-option=<tùy chọn>
+Truyền chuỗi ký tự đã cho đến máy chủ khi giao tiếp bằng giao thức phiên bản 2. Chuỗi ký tự đã cho không được chứa ký tự NUL hoặc LF . Việc xử lý các tùy chọn máy chủ, bao gồm cả các tùy chọn không xác định, là tùy thuộc vào máy chủ. Khi có nhiều --server-option=<option> được cung cấp, tất cả chúng sẽ được gửi đến phía bên kia theo thứ tự được liệt kê trên dòng lệnh. Khi không có --server-option=<option> nào được cung cấp từ dòng lệnh, các giá trị của biến cấu hình remote.<name>.serverOption sẽ được sử dụng thay thế.
+
+--show-forced-updates
+Theo mặc định, git kiểm tra xem nhánh có bị buộc cập nhật trong quá trình tải về hay không. Có thể tắt chức năng này thông qua fetch.showForcedUpdates, nhưng --show-forced-updatestùy chọn này đảm bảo việc kiểm tra này sẽ diễn ra. Xem git-config[1] .
+
+--no-show-forced-updates
+Theo mặc định, git kiểm tra xem nhánh có bị buộc cập nhật trong quá trình tìm nạp hay không. Truyền --no-show-forced-updateshoặc đặt fetch.showForcedUpdates thành false để bỏ qua kiểm tra này vì lý do hiệu suất. Nếu được sử dụng trong tùy chọn git-pullnày --ff-only, nó vẫn sẽ kiểm tra các bản cập nhật bắt buộc trước khi cố gắng cập nhật nhanh. Xem git-config[1] .
+
+-4
+--ipv4
+Chỉ sử dụng địa chỉ IPv4, bỏ qua địa chỉ IPv6.
+
+-6
+--ipv6
+Chỉ sử dụng địa chỉ IPv6, bỏ qua địa chỉ IPv4.
+
+<kho lưu trữ>
+Kho lưu trữ "từ xa" là nguồn của thao tác tìm nạp hoặc kéo. Tham số này có thể là URL (xem phần URL GIT bên dưới) hoặc tên của kho lưu trữ từ xa (xem phần KHO LƯU TRỮ TỪ XA bên dưới).
+
+<refspec>
+Chỉ định các tham chiếu cần tải về và các tham chiếu cục bộ cần cập nhật. Khi không có <refspec> nào xuất hiện trên dòng lệnh, các tham chiếu cần tải về sẽ được đọc từ các biến remote.<repository>.fetch thay thế (xem phần "CÁC NHÁNH THEO DÕI TỪ XA ĐƯỢC CẤU HÌNH" trong git-fetch[1] ).
+
+Định dạng của tham số <refspec> là dấu cộng tùy chọn +, theo sau là nguồn <src> , tiếp theo là dấu hai chấm :, và cuối cùng là đích <dst> . Dấu hai chấm có thể được bỏ qua khi <dst> trống. <src> thường là một ref, hoặc một mẫu glob với một *dấu ngoặc đơn được sử dụng để khớp với một tập hợp các ref, nhưng nó cũng có thể là tên đối tượng hex được viết đầy đủ.
+
+Một `<refspec>` có thể chứa một ` <refspec>` *trong `<src>` để chỉ ra một mẫu khớp đơn giản. `<refspec>` như vậy hoạt động giống như một mẫu glob, khớp với bất kỳ tham chiếu nào có mẫu. Một `<refspec>` mẫu phải có duy nhất một `<refspec>` *trong cả ` <src>` và `<dst>` . Nó sẽ ánh xạ các tham chiếu đến đích bằng cách thay thế `<refspec>` *bằng nội dung khớp từ nguồn.
+
+Nếu một refspec được đặt tiền tố bằng ^, nó sẽ được hiểu là một refspec phủ định. Thay vì chỉ định các ref cần tìm nạp hoặc các ref cục bộ cần cập nhật, refspec như vậy sẽ chỉ định các ref cần loại trừ. Một ref sẽ được coi là khớp nếu nó khớp với ít nhất một refspec tích cực và không khớp với bất kỳ refspec phủ định nào. Refspec phủ định có thể hữu ích để hạn chế phạm vi của một refspec mẫu sao cho nó không bao gồm các ref cụ thể. Bản thân refspec phủ định cũng có thể là refspec mẫu. Tuy nhiên, chúng chỉ có thể chứa <src> và không chỉ định <dst> . Tên đối tượng hex được viết đầy đủ cũng không được hỗ trợ.
+
+tag <tag> có nghĩa tương tự nhưrefs/tags/ <tag> :refs/tags/<tag> ; nó yêu cầu tải về tất cả nội dung cho đến thẻ được chỉ định.
+
+Tham chiếu từ xa khớp với <src> được lấy về, và nếu <dst> không phải là chuỗi rỗng, thì sẽ cố gắng cập nhật tham chiếu cục bộ khớp với nó.
+
+Việc cập nhật đó có được cho phép hay không --forcephụ thuộc vào không gian tên tham chiếu mà nó đang được lấy về, loại đối tượng đang được lấy về và liệu bản cập nhật có được coi là fast-forward hay không. Nói chung, các quy tắc tương tự áp dụng cho việc lấy về cũng như khi đẩy, xem phần <refspec> ... của git-push[1] để biết những quy tắc đó là gì. Các ngoại lệ đối với các quy tắc đó cụ thể git fetchđược ghi chú bên dưới.
+
+Cho đến phiên bản Git 2.20, và không giống như khi đẩy bằng git-push[1] , bất kỳ bản cập nhật nào cho refs/tags/*sẽ được chấp nhận mà không có +trong refspec (hoặc --force). Khi tải về, chúng tôi coi tất cả các bản cập nhật thẻ từ xa là các lần tải về bắt buộc. Kể từ phiên bản Git 2.20, việc tải về để cập nhật refs/tags/*hoạt động giống như khi đẩy. Tức là bất kỳ bản cập nhật nào sẽ bị từ chối mà không có +trong refspec (hoặc --force).
+
+Không giống như khi đẩy bằng git-push[1] , bất kỳ bản cập nhật nào bên ngoài refs/{tags,heads}/*sẽ được chấp nhận mà không cần +trong refspec (hoặc --force), cho dù đó là hoán đổi ví dụ một đối tượng cây thành một blob, hoặc một commit thành một commit khác không có commit trước đó làm tổ tiên, v.v.
+
+Không giống như khi đẩy bằng git-push[1] , không có cấu hình nào có thể sửa đổi các quy tắc này và không có gì giống như một pre-fetchhook tương tự như pre-receivehook.
+
+Cũng như khi đẩy bằng git-push[1] , tất cả các quy tắc được mô tả ở trên về những gì không được phép cập nhật có thể bị ghi đè bằng cách thêm một tùy chọn dẫn +đến refspec (hoặc sử dụng tùy --force chọn dòng lệnh). Ngoại lệ duy nhất là không có cách nào ép buộc không thể khiến không refs/heads/*gian tên chấp nhận một đối tượng không phải là commit.
+
+Ghi chú
+Khi nhánh từ xa mà bạn muốn tải về được biết là thường xuyên được tua lại và cập nhật lại, thì dự kiến ​​rằng đỉnh mới của nó sẽ không phải là hậu duệ của đỉnh trước đó (như được lưu trữ trong nhánh theo dõi từ xa của bạn lần cuối bạn tải về). Bạn nên sử dụng +dấu hiệu này để chỉ ra rằng cần phải cập nhật không theo kiểu fast-forward cho các nhánh như vậy. Không có cách nào để xác định hoặc khai báo rằng một nhánh sẽ được cung cấp trong kho lưu trữ với hành vi này; người dùng tải về chỉ cần biết đây là mô hình sử dụng dự kiến ​​cho một nhánh.
+Ghi chú
+Có sự khác biệt giữa việc liệt kê nhiều <refspec> trực tiếp trên git pulldòng lệnh và việc có nhiều mục remote.<repository>.fetch trong cấu hình cho một <repository> và chạy git pulllệnh mà không có bất kỳ tham số <refspec> nào được chỉ định rõ ràng . Các <refspec> được liệt kê rõ ràng trên dòng lệnh luôn được hợp nhất vào nhánh hiện tại sau khi tải về. Nói cách khác, nếu bạn liệt kê nhiều hơn một tham chiếu từ xa, git pullnó sẽ tạo ra một thao tác hợp nhất Octopus. Mặt khác, nếu bạn không liệt kê bất kỳ tham số <refspec> nào được chỉ định rõ ràng trên dòng lệnh, git pull nó sẽ tải về tất cả các <refspec> mà nó tìm thấy trong cấu hình remote.<repository>.fetch và chỉ hợp nhất <refspec> đầu tiên được tìm thấy vào nhánh hiện tại. Điều này là do việc tạo Octopus từ các tham chiếu từ xa hiếm khi được thực hiện, trong khi việc theo dõi nhiều nhánh từ xa cùng một lúc bằng cách tải về nhiều nhánh thường hữu ích.
+URL GIT
+Nhìn chung, URL chứa thông tin về giao thức truyền tải, địa chỉ của máy chủ từ xa và đường dẫn đến kho lưu trữ. Tùy thuộc vào giao thức truyền tải, một số thông tin này có thể bị thiếu.
+
+Git hỗ trợ các giao thức ssh, git, http và https (ngoài ra, ftp và ftps cũng có thể được sử dụng để tải về, nhưng cách này không hiệu quả và đã lỗi thời; không nên sử dụng chúng).
+
+Phương thức truyền tải gốc (tức là git://URL) không thực hiện xác thực và cần được sử dụng thận trọng trên các mạng không an toàn.
+
+Các cú pháp sau đây có thể được sử dụng với chúng:
+
+ssh://[ <user>@ ] <host> [ :<port> ] /<path-to-git-repo>
+
+git://<host> [ :<port> ] /<path-to-git-repo>
+
+http[ s] ://<host> [ :<port> ] /<path-to-git-repo>
+
+ftp[ s] ://<host> [ :<port> ] /<path-to-git-repo>
+
+Một cú pháp tương tự scp khác cũng có thể được sử dụng với giao thức ssh:
+
+[ <user>@ ] <host> :/<path-to-git-repo>
+
+Cú pháp này chỉ được nhận dạng nếu không có dấu gạch chéo nào trước dấu hai chấm đầu tiên. Điều này giúp phân biệt đường dẫn cục bộ có chứa dấu hai chấm. Ví dụ, đường dẫn cục bộ foo:barcó thể được chỉ định dưới dạng đường dẫn tuyệt đối hoặc ./foo:barđể tránh bị hiểu nhầm là URL SSH.
+
+Các giao thức ssh và git cũng hỗ trợ mở rộng ~<username> :
+
+ssh://[ <user>@ ] <host> [ :<port> ] /~<user> /<path-to-git-repo>
+
+git://<host> [ :<port> ] /~<user> /<path-to-git-repo>
+
+[ <user>@ ] <host> :~<user> /<path-to-git-repo>
+
+Đối với các kho lưu trữ cục bộ, cũng được Git hỗ trợ sẵn, có thể sử dụng các cú pháp sau:
+
+/path/to/repo.git/
+
+file:///path/to/repo.git/
+
+Hai cú pháp này hầu hết tương đương nhau, ngoại trừ khi sao chép, khi đó cú pháp trước hàm ý --localtùy chọn. Xem git-clone[1] để biết chi tiết.
+
+git clonevà , nhưng không phải git fetch, cũng sẽ chấp nhận một tập tin gói phù hợp. Xem git-bundle[1] .git pullgit push
+
+Khi Git không biết cách xử lý một giao thức truyền tải nhất định, nó sẽ cố gắng sử dụng trình trợ giúp từ xa remote-<transport> , nếu có. Để yêu cầu trình trợ giúp từ xa một cách rõ ràng, có thể sử dụng cú pháp sau:
+
+<phương tiện vận chuyển> ::<địa chỉ>
+
+trong đó <địa chỉ> có thể là đường dẫn, máy chủ và đường dẫn hoặc một chuỗi giống URL tùy ý được nhận dạng bởi trình trợ giúp từ xa cụ thể đang được gọi. Xem gitremote-helpers[7] để biết chi tiết.
+
+Nếu có rất nhiều kho lưu trữ từ xa có tên tương tự và bạn muốn sử dụng định dạng khác cho chúng (sao cho các URL bạn sử dụng sẽ được viết lại thành các URL hoạt động), bạn có thể tạo một phần cấu hình có dạng:
+
+	[url " <actual-url-base> "]
+		thay vì = <địa chỉ URL khác>
+Ví dụ, với trường hợp này:
+
+	[url "git://git.host.xz/"]
+		insteadOf = host.xz:/path/to/
+		thay vì = làm việc:
+Một URL dạng "work:repo.git" hoặc "host.xz:/path/to/repo.git" sẽ được viết lại trong bất kỳ ngữ cảnh nào chấp nhận URL dưới dạng "git://git.host.xz/repo.git".
+
+Nếu bạn muốn viết lại URL chỉ dành cho thông báo đẩy, bạn có thể tạo một phần cấu hình có dạng như sau:
+
+	[url " <actual-url-base> "]
+		pushInsteadOf = <other-url-base>
+Ví dụ, với trường hợp này:
+
+	[url "ssh://example.org/"]
+		pushInsteadOf = git://example.org/
+URL dạng "git://example.org/path/to/repo.git" sẽ được viết lại thành "ssh://example.org/path/to/repo.git" khi thực hiện thao tác push, nhưng thao tác pull vẫn sẽ sử dụng URL gốc.
+
+ĐIỀU KHIỂN TỪ XA
+Bạn có thể sử dụng tên của một trong những mục sau thay cho URL làm đối số <repository> :
+
+một remote trong tệp cấu hình Git: $GIT_DIR/config,
+
+một tệp trong $GIT_DIR/remotesthư mục, hoặc
+
+một tập tin trong $GIT_DIR/branchesthư mục.
+
+Tất cả những cách này cũng cho phép bạn bỏ qua refspec khỏi dòng lệnh vì mỗi cách đều chứa một refspec mà git sẽ sử dụng theo mặc định.
+
+Đặt tên là remote trong tệp cấu hình
+Bạn có thể chọn cung cấp tên của một remote mà bạn đã cấu hình trước đó bằng git-remote[1] , git-config[1] hoặc thậm chí bằng cách chỉnh sửa thủ công $GIT_DIR/configtệp. URL của remote này sẽ được sử dụng để truy cập kho lưu trữ. refspec của remote này sẽ được sử dụng theo mặc định khi bạn không cung cấp refspec trên dòng lệnh. Mục nhập trong tệp cấu hình sẽ xuất hiện như sau:
+
+	[từ xa "<tên>"]
+		URL = <URL>
+		pushurl = <pushurl>
+		push = <refspec> 
+		fetch = <refspec>
+Thuộc tính `<pushurl>` chỉ được sử dụng cho việc đẩy dữ liệu. Nó là tùy chọn và mặc định là `<URL> `. Việc đẩy dữ liệu lên máy chủ từ xa sẽ ảnh hưởng đến tất cả các `pushurl` đã được định nghĩa hoặc tất cả các `url` đã được định nghĩa nếu không có `pushurl` nào được định nghĩa. Tuy nhiên, việc tải dữ liệu sẽ chỉ tải từ `url` đầu tiên được định nghĩa nếu có nhiều `url` được định nghĩa.
+
+Tệp được đặt tên trong$GIT_DIR/remotes
+Bạn có thể chọn cung cấp tên tệp trong $GIT_DIR/remotes. URL trong tệp này sẽ được sử dụng để truy cập kho lưu trữ. refspec trong tệp này sẽ được sử dụng làm mặc định khi bạn không cung cấp refspec trên dòng lệnh. Tệp này phải có định dạng sau:
+
+	URL: một trong các định dạng URL nêu trên
+	Đẩy: <refspec> 
+	Kéo: <refspec>
+Push:Các dòng được sử dụng bởi git pushvà Pull:các dòng được sử dụng bởi git pullvà . Có thể chỉ định git fetchnhiều dòng Push:và để ánh xạ nhánh bổ sung.Pull:
+
+Tệp được đặt tên trong$GIT_DIR/branches
+Bạn có thể chọn cung cấp tên của một tệp trong $GIT_DIR/branches. URL trong tệp này sẽ được sử dụng để truy cập kho lưu trữ. Tệp này phải có định dạng sau:
+
+	<URL># <head>
+Thẻ <URL> là bắt buộc; #thẻ <head> là tùy chọn.
+
+Tùy thuộc vào thao tác, git sẽ sử dụng một trong các refspec sau nếu bạn không cung cấp refspec nào trên dòng lệnh. <branch> là tên của tệp này $GIT_DIR/branchesvà <head> mặc định là master.
+
+git fetch sử dụng:
+
+	refs/heads/ <head> :refs/heads/ <branch>
+Lệnh `git push` sử dụng:
+
+	HEAD:refs/heads/ <head>
+CÁC NHÁNH THƯỢNG NGUỒN
+Trong Git, các nhánh có thể tùy chọn liên kết với một nhánh từ xa nguồn (upstream). Theo mặc định, Git sẽ sử dụng nhánh nguồn cho các thao tác từ xa, ví dụ:
+
+Đây là giá trị mặc định git pullkhi git fetchkhông có đối số nào.
+
+Đây là tùy chọn mặc định git pushkhi không có đối số, với một số ngoại lệ. Ví dụ, bạn có thể sử dụng tùy chọn branch.<name>.pushRemote để đẩy lên một kho lưu trữ từ xa khác với kho lưu trữ bạn đang kéo xuống, và theo mặc định, push.default=simplenhánh upstream bạn cấu hình phải có cùng tên.
+
+Nhiều lệnh khác nhau, bao gồm cả git checkoutvà git status, sẽ cho bạn biết có bao nhiêu commit đã được thêm vào nhánh hiện tại của bạn và nhánh chính kể từ khi bạn tạo nhánh con từ nó, ví dụ: "Nhánh của bạn và origin/main đã phân kỳ, và mỗi nhánh có lần lượt 2 và 3 commit khác nhau".
+
+Thông tin về nguồn cấp dữ liệu được lưu trữ trong .git/config, ở các trường " remote" và " merge". Ví dụ, nếu mainnguồn cấp dữ liệu của 's là origin/main:
+
+[nhánh "chính"]
+   xa = nguồn gốc
+   hợp nhất = refs/heads/main
+Bạn có thể thiết lập nhánh upstream một cách rõ ràng bằng cách sử dụng git push --set-upstream <remote> <branch> , nhưng Git thường sẽ tự động thiết lập nhánh upstream cho bạn, ví dụ:
+
+Khi bạn sao chép một kho lưu trữ, Git sẽ tự động thiết lập nhánh mặc định làm nguồn gốc (upstream).
+
+Nếu bạn đã push.autoSetupRemotethiết lập tùy chọn cấu hình, git pushhệ thống sẽ tự động thiết lập upstream lần đầu tiên khi bạn đẩy một nhánh.
+
+Việc kiểm tra một nhánh theo dõi từ xa bằng lệnh git checkout `<branch>` sẽ tự động tạo một nhánh cục bộ với tên đó và thiết lập nhánh nguồn (upstream) trỏ đến nhánh từ xa.
+
+Ghi chú
+Các nhánh thượng nguồn đôi khi được gọi là "thông tin theo dõi", ví dụ như "thiết lập thông tin theo dõi của nhánh".
+CHIẾN LƯỢC SÁP NHẬP
+Cơ chế hợp nhất ( git mergevà git pullcác lệnh) cho phép lựa chọn các chiến lược hợp-s nhất phía máy chủ bằng tùy chọn. Một số chiến lược cũng có thể sử dụng các tùy chọn riêng, có thể được truyền bằng cách cung cấp các đối số -X<option> cho git mergevà/hoặc git pull.
+
+ort
+Đây là chiến lược hợp nhất mặc định khi kéo hoặc hợp nhất một nhánh. Chiến lược này chỉ có thể giải quyết hai nhánh chính bằng thuật toán hợp nhất 3 chiều. Khi có nhiều hơn một tổ tiên chung có thể được sử dụng cho hợp nhất 3 chiều, nó sẽ tạo ra một cây hợp nhất của các tổ tiên chung và sử dụng cây đó làm cây tham chiếu cho việc hợp nhất 3 chiều. Các thử nghiệm trên các commit hợp nhất thực tế lấy từ lịch sử phát triển kernel Linux 2.6 đã báo cáo rằng điều này dẫn đến ít xung đột hợp nhất hơn mà không gây ra lỗi hợp nhất. Ngoài ra, chiến lược này có thể phát hiện và xử lý các thao tác hợp nhất liên quan đến việc đổi tên. Nó không sử dụng các bản sao đã được phát hiện. Tên của thuật toán này là một từ viết tắt ("Ostensibly Recursive's Twin") và xuất phát từ việc nó được viết để thay thế cho thuật toán mặc định trước đó recursive.
+
+Trong trường hợp đường dẫn là một submodule, nếu commit của submodule được sử dụng ở một phía của thao tác hợp nhất là hậu duệ của commit submodule được sử dụng ở phía còn lại của thao tác hợp nhất, Git sẽ cố gắng fast-forward đến hậu duệ đó. Ngược lại, Git sẽ coi trường hợp này là xung đột, đề xuất một commit submodule là hậu duệ của các commit xung đột, nếu có, để giải quyết vấn đề.
+
+Chiến ortlược có thể bao gồm các phương án sau:
+
+ours
+Tùy chọn này buộc các khối mã xung đột phải được tự động giải quyết một cách gọn gàng bằng cách ưu tiên phiên bản của chúng ta . Các thay đổi từ cây mã nguồn khác không xung đột với phía chúng ta sẽ được phản ánh trong kết quả hợp nhất. Đối với tệp nhị phân, toàn bộ nội dung được lấy từ phía chúng ta.
+
+Điều này không nên nhầm lẫn với ourschiến lược hợp nhất, vốn thậm chí không xem xét nội dung của cây kia. Nó loại bỏ mọi thứ mà cây kia đã làm, tuyên bố rằng lịch sử của chúng ta chứa tất cả những gì đã xảy ra trong đó.
+
+theirs
+Điều này trái ngược với ours; lưu ý rằng, không giống như ours, không có theirschiến lược hợp nhất nào để nhầm lẫn với tùy chọn hợp nhất này.
+
+ignore-space-change
+ignore-all-space
+ignore-space-at-eol
+ignore-cr-at-eol
+Xử lý các dòng có thay đổi khoảng trắng được chỉ định như không thay đổi để phục vụ cho việc hợp nhất ba chiều. Các thay đổi khoảng trắng kết hợp với các thay đổi khác đối với một dòng sẽ không bị bỏ qua. Xem thêm git-diff[1] -b , -w, --ignore-space-at-eol, và --ignore-cr-at-eol.
+
+Nếu phiên bản của họ chỉ thay đổi khoảng trắng trong một dòng, thì phiên bản của chúng tôi sẽ được sử dụng;
+
+Nếu phiên bản của chúng ta chỉ thay đổi khoảng trắng nhưng phiên bản của họ lại có sự thay đổi đáng kể, thì phiên bản của họ sẽ được sử dụng;
+
+Ngược lại, quá trình sáp nhập sẽ diễn ra theo cách thông thường.
+
+renormalize
+Thao tác này thực hiện kiểm tra và nhận lại ảo của cả ba giai đoạn của bất kỳ tệp nào cần hợp nhất ba chiều. Tùy chọn này được dùng khi hợp nhất các nhánh có bộ lọc sạch khác nhau hoặc quy tắc chuẩn hóa cuối dòng khác nhau. Xem "Hợp nhất các nhánh có thuộc tính nhận lại/nhận lại khác nhau" trong gitattributes[5] để biết chi tiết.
+
+no-renormalize
+Vô hiệu hóa renormalizetùy chọn. Thao tác này sẽ ghi đè lên merge.renormalizebiến cấu hình.
+
+find-renames[ =<n> ]
+Bật tính năng phát hiện đổi tên, tùy chọn thiết lập ngưỡng tương đồng. Đây là mặc định. Điều này ghi đè lên merge.renamesbiến cấu hình. Xem thêm git-diff[1] --find-renames .
+
+rename-threshold=<n>
+Từ đồng nghĩa lỗi thời của find-renames=<n> .
+
+no-renames
+Tắt tính năng phát hiện đổi tên. Điều này sẽ ghi đè lên merge.renames biến cấu hình. Xem thêm git-diff[1] --no-renames .
+
+histogram
+Từ đồng nghĩa đã lỗi thời của diff-algorithm=histogram.
+
+patience
+Từ đồng nghĩa đã lỗi thời của diff-algorithm=patience.
+
+diff-algorithm=( histogram| minimal| myers| patience)
+Sử dụng thuật toán khác biệt trong khi hợp nhất, điều này có thể giúp tránh các lỗi hợp nhất xảy ra do các dòng khớp không quan trọng (chẳng hạn như dấu ngoặc nhọn từ các hàm khác nhau). Xem thêm git-diff[1] --diff-algorithm . Lưu ý rằng ort mặc định là diff-algorithm=histogram, trong khi các diff thông thường hiện mặc định là diff.algorithmcài đặt cấu hình.
+
+subtree[ =<path> ]
+Tùy chọn này là một dạng nâng cao hơn của chiến lược cây con , trong đó chiến lược đưa ra dự đoán về cách hai cây phải được dịch chuyển để khớp với nhau khi hợp nhất. Thay vào đó, đường dẫn được chỉ định sẽ được thêm tiền tố (hoặc loại bỏ từ đầu) để làm cho hình dạng của hai cây khớp với nhau.
+
+recursive
+Hiện tại, đây là từ đồng nghĩa với ort. Trước phiên bản v2.49.0, nó là một cách triển khai thay thế, nhưng đã được chuyển hướng để có nghĩa là ort trong phiên bản v2.50.0. Chiến lược đệ quy trước đây là chiến lược mặc định để giải quyết hai nhánh từ Git v0.99.9k đến v2.33.0.
+
+resolve
+Chức năng này chỉ có thể giải quyết hai nhánh chính (tức là nhánh hiện tại và một nhánh khác mà bạn đã lấy từ đó) bằng thuật toán hợp nhất 3 chiều. Nó cố gắng phát hiện cẩn thận các sự mơ hồ trong quá trình hợp nhất chéo. Nó không xử lý việc đổi tên.
+
+octopus
+Phương pháp này giải quyết các trường hợp có nhiều hơn hai nhánh chính, nhưng từ chối thực hiện việc hợp nhất phức tạp cần xử lý thủ công. Nó chủ yếu được sử dụng để nhóm các nhánh chính của chủ đề lại với nhau. Đây là chiến lược hợp nhất mặc định khi kéo hoặc hợp nhất nhiều hơn một nhánh.
+
+ours
+Thao tác này giải quyết bất kỳ số lượng đầu nhánh nào, nhưng cây kết quả sau khi hợp nhất luôn là cây của đầu nhánh hiện tại, về cơ bản bỏ qua tất cả các thay đổi từ tất cả các nhánh khác. Mục đích của nó là ghi đè lên lịch sử phát triển cũ của các nhánh phụ. Lưu ý rằng điều này khác với tùy -Xourschọn trong ortchiến lược hợp nhất.
+
+subtree
+Đây là một ortchiến lược được điều chỉnh. Khi hợp nhất cây A và cây B, nếu B tương ứng với một cây con của A, thì trước tiên B được điều chỉnh để phù hợp với cấu trúc cây của A, thay vì đọc các cây ở cùng cấp độ. Việc điều chỉnh này cũng được thực hiện đối với cây tổ tiên chung.
+
+Với các chiến lược sử dụng hợp nhất 3 chiều (bao gồm cả mặc định ort), nếu một thay đổi được thực hiện trên cả hai nhánh, nhưng sau đó được hoàn tác trên một trong các nhánh, thì thay đổi đó vẫn sẽ có mặt trong kết quả hợp nhất; một số người thấy hành vi này khó hiểu. Điều này xảy ra vì chỉ có các commit đầu tiên và commit cơ sở hợp nhất được xem xét khi thực hiện hợp nhất, chứ không phải các commit riêng lẻ. Do đó, thuật toán hợp nhất coi thay đổi được hoàn tác là không có thay đổi nào cả, và thay thế bằng phiên bản đã thay đổi.
+
+HÀNH VI MẶC ĐỊNH
+Thông thường, mọi người sử dụng git pullmà không cần cung cấp tham số nào. Theo truyền thống, điều này tương đương với việc nói git pull origin. Tuy nhiên, khi cấu hình branch.<name>.remote tồn tại trong khi đang ở nhánh <name> , giá trị đó sẽ được sử dụng thay vì origin.
+
+Để xác định URL nào cần sử dụng để lấy dữ liệu, giá trị của cấu hình remote.<origin>.url sẽ được tham khảo và nếu không có biến nào như vậy, giá trị trên URL:dòng trong $GIT_DIR/remotes/<origin> sẽ được sử dụng.
+
+Để xác định các nhánh từ xa cần lấy (và tùy chọn lưu trữ trong các nhánh theo dõi từ xa) khi lệnh được chạy mà không có bất kỳ tham số refspec nào trên dòng lệnh, các giá trị của biến cấu hình remote.<origin>.fetch sẽ được tham khảo, và nếu không có giá trị nào, $GIT_DIR/remotes/<origin> sẽ được tham khảo và Pull:các dòng của nó sẽ được sử dụng. Ngoài các định dạng refspec được mô tả trong phần OPTIONS, bạn có thể có một refspec dạng globbing trông như thế này:
+
+refs/heads/*:refs/remotes/origin/*
+Một refspec dạng globbing phải có vế phải không rỗng (tức là phải lưu trữ những gì đã được lấy trong các nhánh theo dõi từ xa), và vế trái và vế phải của nó phải kết thúc bằng /*. Điều trên chỉ định rằng tất cả các nhánh từ xa được theo dõi bằng cách sử dụng các nhánh theo dõi từ xa trong refs/remotes/origin/hệ thống phân cấp dưới cùng một tên.
+
+Quy tắc để xác định nhánh từ xa nào cần hợp nhất sau khi tải về khá phức tạp, nhằm tránh phá vỡ tính tương thích ngược.
+
+Nếu các thông số tham chiếu được cung cấp rõ ràng trên dòng lệnh của git pull, chúng sẽ được hợp nhất tất cả.
+
+Khi không có refspec nào được cung cấp trên dòng lệnh, thì git pull sẽ sử dụng refspec từ cấu hình hoặc $GIT_DIR/remotes/<origin> . Trong những trường hợp như vậy, các quy tắc sau đây được áp dụng:
+
+Nếu cấu hình branch.<name>.merge cho nhánh hiện tại <name> tồn tại, thì đó là tên của nhánh tại địa điểm từ xa được hợp nhất.
+
+Nếu refspec là loại globbing, thì không có gì được hợp nhất.
+
+Ngược lại, nhánh từ xa của refspec đầu tiên sẽ được hợp nhất.
+
+VÍ DỤ
+Cập nhật các nhánh theo dõi từ xa cho kho lưu trữ mà bạn đã sao chép, sau đó hợp nhất một trong số chúng vào nhánh hiện tại của bạn:
+
+$ git pull
+$ git pull origin
+Thông thường nhánh được hợp nhất là nhánh HEADcủa kho lưu trữ từ xa, nhưng sự lựa chọn được xác định bởi các tùy chọn branch.<name>.remote và branch.<name>.merge ; xem git-config[1] để biết chi tiết.
+
+Hợp nhất nhánh từ xa vào nhánh hiện tại next:
+
+$ git pull origin next
+nextThao tác này tạm thời giữ lại một bản sao trong thư mục FETCH_HEADvà cập nhật nhánh theo dõi từ xa origin/next. Có thể thực hiện tương tự bằng cách gọi lệnh fetch và merge:
+
+$ git fetch origin
+$ git merge origin/next
+Nếu bạn thử thao tác kéo (pull) dẫn đến xung đột phức tạp và muốn bắt đầu lại, bạn có thể khôi phục bằng lệnh git reset.
+
+BẢO VỆ
+Các giao thức tìm nạp và đẩy không được thiết kế để ngăn chặn một bên đánh cắp dữ liệu từ kho lưu trữ khác mà không có ý định chia sẻ. Nếu bạn có dữ liệu riêng tư cần bảo vệ khỏi một bên thứ ba độc hại, lựa chọn tốt nhất là lưu trữ nó trong một kho lưu trữ khác. Điều này áp dụng cho cả máy khách và máy chủ. Đặc biệt, không gian tên trên máy chủ không hiệu quả trong việc kiểm soát quyền truy cập đọc; bạn chỉ nên cấp quyền truy cập đọc vào một không gian tên cho những máy khách mà bạn tin tưởng có thể cấp quyền truy cập đọc vào toàn bộ kho lưu trữ.
+
+Các phương thức tấn công đã biết như sau:
+
+Nạn nhân gửi các dòng lệnh "có" để quảng cáo ID của các đối tượng mà nó sở hữu, những ID này không được dự định chia sẻ một cách rõ ràng nhưng có thể được sử dụng để tối ưu hóa việc truyền tải nếu bên kia cũng có chúng. Kẻ tấn công chọn một ID đối tượng X để đánh cắp và gửi một tham chiếu đến X, nhưng không bắt buộc phải gửi nội dung của X vì nạn nhân đã có nó. Lúc này, nạn nhân tin rằng kẻ tấn công đang giữ X, và sau đó gửi lại nội dung của X cho kẻ tấn công. (Cách tấn công đơn giản nhất mà máy khách có thể thực hiện trên máy chủ là tạo một tham chiếu đến X trong không gian tên mà máy khách có quyền truy cập và sau đó lấy nó. Cách khả dĩ nhất để máy chủ thực hiện điều này trên máy khách là "hợp nhất" X vào một nhánh công khai và hy vọng rằng người dùng sẽ thực hiện thêm công việc trên nhánh này và đẩy nó trở lại máy chủ mà không nhận thấy việc hợp nhất.)
+
+Như trong trường hợp #1, kẻ tấn công chọn một ID đối tượng X để đánh cắp. Nạn nhân gửi một đối tượng Y mà kẻ tấn công đã có, và kẻ tấn công nói dối rằng mình có X chứ không phải Y, vì vậy nạn nhân gửi Y như một phép so sánh (delta) với X. Phép so sánh này tiết lộ các vùng của X tương tự với Y cho kẻ tấn công.
+
+LỖI
+Hiện tại, việc sử dụng lệnh --recurse-submodules`git fetch` chỉ cho phép tải về các commit mới trong các submodule đã được checkout. Ví dụ, khi dự án upstream thêm một submodule mới vào các commit vừa được fetch của dự án superproject, bản thân submodule đó không thể được fetch, khiến việc checkout submodule đó sau này trở nên bất khả thi nếu không thực hiện lại thao tác fetch. Vấn đề này dự kiến ​​sẽ được khắc phục trong phiên bản Git tương lai.
+
+XEM THÊM
+git-fetch[1] , git-merge[1] , git-config[1]

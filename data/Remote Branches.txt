@@ -1,0 +1,123 @@
+Phân nhánh Git - Các nhánh từ xa
+Chi nhánh từ xa
+Các tham chiếu từ xa là các tham chiếu (con trỏ) đến kho lưu trữ từ xa của bạn, bao gồm các nhánh, thẻ, v.v. Bạn có thể lấy danh sách đầy đủ các tham chiếu từ xa một cách rõ ràng bằng lệnh `<remote_reference>` git ls-remote <remote>hoặc ` git remote show <remote><remote_reference>` cho các nhánh từ xa cũng như nhiều thông tin khác. Tuy nhiên, một cách phổ biến hơn là tận dụng các nhánh theo dõi từ xa.
+
+Các nhánh theo dõi từ xa là các tham chiếu đến trạng thái của các nhánh từ xa. Chúng là các tham chiếu cục bộ mà bạn không thể di chuyển; Git sẽ tự động di chuyển chúng mỗi khi bạn thực hiện bất kỳ giao tiếp mạng nào, để đảm bảo chúng phản ánh chính xác trạng thái của kho lưu trữ từ xa. Hãy coi chúng như những dấu trang, để nhắc nhở bạn về vị trí các nhánh trong kho lưu trữ từ xa của bạn lần cuối bạn kết nối với chúng.
+
+Tên nhánh theo dõi từ xa có dạng <remote>/<branch>. Ví dụ, nếu bạn muốn xem masternhánh trên originmáy chủ từ xa trông như thế nào tại thời điểm bạn giao tiếp lần cuối, bạn sẽ kiểm tra origin/masternhánh đó. Nếu bạn đang làm việc với một đối tác và họ đẩy lên một iss53nhánh, bạn có thể có nhánh cục bộ của riêng mình iss53, nhưng nhánh trên máy chủ sẽ được biểu thị bằng nhánh theo dõi từ xa origin/iss53.
+
+Điều này có thể hơi khó hiểu, vì vậy hãy xem một ví dụ. Giả sử bạn có một máy chủ Git trên mạng của mình tại . Nếu bạn sao chép từ máy chủ này, lệnh git.ourcompany.comcủa Git sẽ tự động đặt tên cho nó, tải xuống tất cả dữ liệu, tạo một con trỏ đến vị trí nhánh của nó và đặt tên cho nhánh đó cục bộ. Git cũng cung cấp cho bạn một nhánh cục bộ riêng bắt đầu từ cùng một vị trí với nhánh của máy chủ gốc, vì vậy bạn có thể bắt đầu làm việc từ đó.cloneoriginmasterorigin/mastermastermaster
+
+Ghi chú
+“Nguồn gốc” không có gì đặc biệt
+Giống như tên nhánh “master” không có ý nghĩa đặc biệt nào trong Git, “origin” cũng vậy. Trong khi “master” là tên mặc định cho nhánh khởi đầu khi bạn chạy lệnh `git start`, git initđó là lý do duy nhất nó được sử dụng rộng rãi, thì “origin” là tên mặc định cho một kho lưu trữ từ xa khi bạn chạy lệnh `git remote` git clone. Nếu bạn chạy lệnh ` git git clone -o booyahorigin` thay vào đó, thì nhánh mặc định của bạn sẽ là ` booyah/mastermaster`.
+
+Kho lưu trữ trên máy chủ và cục bộ sau khi sao chép.
+Hình 30. Máy chủ và kho lưu trữ cục bộ sau khi sao chép.
+Nếu bạn thực hiện một số thao tác trên masternhánh cục bộ của mình, và trong khi đó, người khác đẩy mã lên git.ourcompany.comvà cập nhật masternhánh đó, thì lịch sử thao tác của bạn sẽ diễn ra khác nhau. Ngoài ra, miễn là bạn không kết nối với originmáy chủ, origin/mastercon trỏ của bạn sẽ không di chuyển.
+
+Làm việc tại văn phòng và làm việc từ xa có thể khác nhau.
+Hình 31. Công việc tại chỗ và làm việc từ xa có thể khác nhau.
+Để đồng bộ hóa công việc của bạn với một máy chủ từ xa nhất định, bạn chạy một git fetch <remote>lệnh (trong trường hợp này là git fetch origin). Lệnh này sẽ tìm kiếm máy chủ “origin” (trong trường hợp này là git.ourcompany.com), lấy bất kỳ dữ liệu nào từ đó mà bạn chưa có, và cập nhật cơ sở dữ liệu cục bộ của bạn, di chuyển origin/mastercon trỏ đến vị trí mới, cập nhật hơn.
+
+`git fetch` cập nhật các nhánh theo dõi từ xa của bạn
+Hình 32. git fetchcập nhật các nhánh theo dõi từ xa của bạn
+Để minh họa việc có nhiều máy chủ từ xa và các nhánh từ xa cho các dự án từ xa đó trông như thế nào, hãy giả sử bạn có một máy chủ Git nội bộ khác chỉ được sử dụng cho việc phát triển bởi một trong các nhóm sprint của bạn. Máy chủ này nằm ở địa chỉ git.team1.ourcompany.com. Bạn có thể thêm nó như một tham chiếu từ xa mới vào dự án bạn đang làm việc bằng cách chạy git remote addlệnh như chúng ta đã đề cập trong phần Cơ bản về Git . Đặt tên cho máy chủ từ xa này teamonelà , đây sẽ là tên viết tắt của toàn bộ URL đó.
+
+Thêm một máy chủ khác làm máy chủ từ xa
+Hình 33. Thêm một máy chủ khác làm máy chủ từ xa
+Giờ đây, bạn có thể chạy lệnh git fetch teamoneđể tải về tất cả teamonedữ liệu mà máy chủ từ xa đang có nhưng bạn chưa có. Vì máy chủ đó chỉ chứa một phần dữ liệu originso với máy chủ của bạn hiện tại, Git sẽ không tải về dữ liệu nào mà sẽ thiết lập một nhánh theo dõi từ xa có tên teamone/masterđể trỏ đến commit teamonecó masternhánh đó.
+
+Nhánh theo dõi từ xa cho `teamone/master`
+Hình 34. Nhánh theo dõi từ xa choteamone/master
+Đẩy
+Khi bạn muốn chia sẻ một nhánh mã với mọi người, bạn cần đẩy nhánh đó lên máy chủ từ xa mà bạn có quyền ghi. Các nhánh cục bộ của bạn không tự động được đồng bộ hóa với các máy chủ từ xa mà bạn ghi vào — bạn phải đẩy các nhánh mà bạn muốn chia sẻ một cách rõ ràng. Bằng cách đó, bạn có thể sử dụng các nhánh riêng tư cho công việc mà bạn không muốn chia sẻ và chỉ đẩy lên các nhánh chủ đề mà bạn muốn cộng tác.
+
+Nếu bạn có một nhánh được đặt tên serverfixmà bạn muốn làm việc cùng với những người khác, bạn có thể đẩy nhánh đó lên theo cách tương tự như khi đẩy nhánh đầu tiên. Chạy lệnh git push <remote> <branch>:
+
+$ git push origin serverfix
+Counting objects: 24, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (15/15), done.
+Writing objects: 100% (24/24), 1.91 KiB | 0 bytes/s, done.
+Total 24 (delta 2), reused 0 (delta 0)
+To https://github.com/schacon/simplegit
+ * [new branch]      serverfix -> serverfix
+Đây là một cách làm tắt. Git tự động mở rộng serverfixtên nhánh thành `<branchname> ` refs/heads/serverfix:refs/heads/serverfix, có nghĩa là "Lấy serverfixnhánh cục bộ của tôi và đẩy nó lên để cập nhật serverfixnhánh trên kho lưu trữ từ xa". Chúng ta sẽ xem xét refs/heads/chi tiết phần này trong Git Internals , nhưng nhìn chung bạn có thể bỏ qua nó. Bạn cũng git push origin serverfix:serverfixcó thể sử dụng `git push`, lệnh này cũng làm điều tương tự - nó nói rằng, "Lấy serverfix của tôi và biến nó thành serverfix trên kho lưu trữ từ xa". Bạn có thể sử dụng định dạng này để đẩy một nhánh cục bộ vào một nhánh trên kho lưu trữ từ xa có tên khác. Nếu bạn không muốn nó được gọi là ` serverfix<branchname>` trên kho lưu trữ từ xa, bạn có thể sử dụng lệnh `git push` git push origin serverfix:awesomebranchđể đẩy nhánh cục bộ của mình serverfixlên awesomebranchnhánh `<branchname>` trên dự án từ xa.
+
+Ghi chú
+Đừng nhập mật khẩu mỗi lần.
+Nếu bạn sử dụng URL HTTPS để đẩy mã lên, máy chủ Git sẽ yêu cầu bạn nhập tên người dùng và mật khẩu để xác thực. Theo mặc định, nó sẽ nhắc bạn nhập thông tin này trên terminal để máy chủ có thể biết bạn có được phép đẩy mã lên hay không.
+
+Nếu bạn không muốn phải nhập lại thông tin đăng nhập mỗi lần thao tác, bạn có thể thiết lập "bộ nhớ đệm thông tin đăng nhập". Cách đơn giản nhất là lưu trữ thông tin đó trong bộ nhớ vài phút, bạn có thể dễ dàng thiết lập bằng cách chạy lệnh git config --global credential.helper cache...
+
+Để biết thêm thông tin về các tùy chọn lưu trữ thông tin xác thực khác nhau, hãy xem Lưu trữ thông tin xác thực .
+
+Lần tới khi một trong những cộng tác viên của bạn lấy dữ liệu từ máy chủ, họ sẽ nhận được một tham chiếu đến vị trí phiên bản của máy chủ serverfixnằm trong nhánh từ xa origin/serverfix:
+
+$ git fetch origin
+remote: Counting objects: 7, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 3 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From https://github.com/schacon/simplegit
+ * [new branch]      serverfix    -> origin/serverfix
+Điều quan trọng cần lưu ý là khi bạn thực hiện thao tác tải xuống các nhánh theo dõi từ xa mới, bạn không tự động có các bản sao cục bộ có thể chỉnh sửa được của chúng. Nói cách khác, trong trường hợp này, bạn không có một serverfixnhánh mới — bạn chỉ có một origin/serverfixcon trỏ mà bạn không thể sửa đổi.
+
+Để hợp nhất công việc này vào nhánh làm việc hiện tại của bạn, bạn có thể chạy lệnh git merge origin/serverfix`.`. Nếu bạn muốn có nhánh riêng serverfixđể làm việc, bạn có thể tạo nhánh đó dựa trên nhánh theo dõi từ xa của mình:
+
+$ git checkout -b serverfix origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+Điều này cung cấp cho bạn một nhánh cục bộ mà bạn có thể làm việc trên đó, bắt đầu từ vị trí origin/serverfixhiện tại.
+
+Theo dõi các nhánh
+Việc sao chép một nhánh cục bộ từ một nhánh theo dõi từ xa sẽ tự động tạo ra cái gọi là "nhánh theo dõi" (và nhánh mà nó theo dõi được gọi là "nhánh thượng nguồn"). Nhánh theo dõi là các nhánh cục bộ có mối quan hệ trực tiếp với một nhánh từ xa. Nếu bạn đang ở trên một nhánh theo dõi và gõ lệnh `git checkout -e` git pull, Git sẽ tự động biết cần lấy dữ liệu từ máy chủ nào và cần hợp nhất vào nhánh nào.
+
+Khi bạn sao chép một kho lưu trữ, nó thường tự động tạo một masternhánh để theo dõi nhánh đó origin/master. Tuy nhiên, bạn có thể thiết lập các nhánh theo dõi khác nếu muốn — những nhánh theo dõi các nhánh trên các kho lưu trữ từ xa khác, hoặc không theo dõi masternhánh đó. Trường hợp đơn giản là ví dụ bạn vừa thấy, chạy lệnh git checkout -b <branch> <remote>/<branch>`git clone --request --track...
+
+$ git checkout --track origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+Trên thực tế, điều này phổ biến đến mức thậm chí còn có một phím tắt cho phím tắt đó. Nếu tên nhánh bạn đang cố gắng chuyển (a) không tồn tại và (b) trùng khớp chính xác với tên trên chỉ một kho lưu trữ từ xa, Git sẽ tạo một nhánh theo dõi cho bạn:
+
+$ git checkout serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+Để thiết lập một nhánh cục bộ với tên khác với nhánh từ xa, bạn có thể dễ dàng sử dụng phiên bản đầu tiên với tên nhánh cục bộ khác:
+
+$ git checkout -b sf origin/serverfix
+Branch sf set up to track remote branch serverfix from origin.
+Switched to a new branch 'sf'
+Giờ đây, chi nhánh cục bộ của bạn sfsẽ tự động lấy dữ liệu từ origin/serverfix.
+
+Nếu bạn đã có một nhánh cục bộ và muốn thiết lập nó thành một nhánh từ xa mà bạn vừa tải xuống, hoặc muốn thay đổi nhánh nguồn mà bạn đang theo dõi, bạn có thể sử dụng tùy chọn -uhoặc để thiết lập rõ ràng bất cứ lúc nào.--set-upstream-togit branch
+
+$ git branch -u origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Ghi chú
+viết tắt ngược dòng
+Khi bạn đã thiết lập một nhánh theo dõi, bạn có thể tham chiếu đến nhánh thượng nguồn của nó bằng cách sử dụng cú pháp viết tắt `@tracking` @{upstream}hoặc ` @ @{u}tracking`. Vì vậy, nếu bạn đang ở trên masternhánh `@tracking` và nó đang theo dõi nhánh `@tracking` origin/master, bạn có thể sử dụng cú pháp `@tracking` git merge @{u}thay vì git merge origin/master`@tracking` nếu muốn.
+
+Nếu bạn muốn xem các chi nhánh theo dõi mà bạn đã thiết lập, bạn có thể sử dụng -vvtùy chọn này git branch. Thao tác này sẽ liệt kê các chi nhánh địa phương của bạn cùng với thông tin chi tiết hơn, bao gồm những gì mỗi chi nhánh đang theo dõi và liệu chi nhánh địa phương của bạn đang đi trước, đi sau hay cả hai.
+
+$ git branch -vv
+  iss53     7e424c3 [origin/iss53: ahead 2] Add forgotten brackets
+  master    1ae2a45 [origin/master] Deploy index fix
+* serverfix f8674d9 [teamone/server-fix-good: ahead 3, behind 1] This should do it
+  testing   5ea463a Try something new
+Như vậy, ở đây chúng ta có thể thấy iss53nhánh của mình đang theo dõi origin/iss53và "đi trước" hai commit, nghĩa là chúng ta có hai commit cục bộ chưa được đẩy lên máy chủ. Chúng ta cũng có thể thấy rằng masternhánh của mình đang theo dõi origin/mastervà được cập nhật. Tiếp theo, chúng ta có thể thấy rằng serverfixnhánh của mình đang theo dõi server-fix-goodnhánh trên teamonemáy chủ và đi trước ba commit và tụt lại một commit, nghĩa là có một commit trên máy chủ mà chúng ta chưa hợp nhất và ba commit cục bộ mà chúng ta chưa đẩy lên. Cuối cùng, chúng ta có thể thấy rằng testingnhánh của mình không theo dõi bất kỳ nhánh từ xa nào.
+
+Điều quan trọng cần lưu ý là những con số này chỉ tính từ lần cuối bạn lấy dữ liệu từ mỗi máy chủ. Lệnh này không kết nối với các máy chủ, mà chỉ thông báo cho bạn về những gì nó đã lưu trữ cục bộ từ các máy chủ này. Nếu bạn muốn có số liệu cập nhật hoàn toàn về tiến độ và chậm trễ, bạn cần lấy dữ liệu từ tất cả các máy chủ từ xa ngay trước khi chạy lệnh này. Bạn có thể làm như sau:
+
+$ git fetch --all; git branch -vv
+Kéo
+Mặc dù git fetchlệnh này sẽ tải về tất cả các thay đổi trên máy chủ mà bạn chưa có, nhưng nó sẽ không sửa đổi thư mục làm việc của bạn. Nó chỉ đơn giản là lấy dữ liệu cho bạn và cho phép bạn tự hợp nhất. Tuy nhiên, có một lệnh gọi là git pullmà về cơ bản là lệnh git fetchngay sau đó là lệnh git mergetrong hầu hết các trường hợp. Nếu bạn đã thiết lập một nhánh theo dõi như đã trình bày trong phần trước, bằng cách thiết lập rõ ràng hoặc được tạo tự động bởi các lệnh clonehoặc checkout, git pulllệnh sẽ tìm kiếm máy chủ và nhánh mà nhánh hiện tại của bạn đang theo dõi, tải về từ máy chủ đó và sau đó cố gắng hợp nhất nhánh từ xa đó.
+
+Xóa các nhánh từ xa
+Giả sử bạn đã hoàn thành công việc với một nhánh từ xa — chẳng hạn như bạn và các cộng sự đã hoàn thành một tính năng và đã hợp nhất nó vào masternhánh từ xa của bạn (hoặc bất kỳ nhánh nào chứa dòng mã ổn định của bạn). Bạn có thể xóa một nhánh từ xa bằng cách sử dụng --deletetùy chọn `--delete` git push. Nếu bạn muốn xóa serverfixnhánh của mình khỏi máy chủ, bạn chạy lệnh sau:
+
+$ git push origin --delete serverfix
+To https://github.com/schacon/simplegit
+ - [deleted]         serverfix
+Về cơ bản, thao tác này chỉ đơn giản là xóa con trỏ khỏi máy chủ. Máy chủ Git thường sẽ giữ dữ liệu ở đó trong một thời gian cho đến khi quá trình thu gom rác diễn ra, vì vậy nếu dữ liệu bị xóa nhầm, việc khôi phục thường khá dễ dàng.

@@ -1,0 +1,197 @@
+Phân nhánh trong Git - Phân nhánh và hợp nhất cơ bản
+Phân nhánh và hợp nhất cơ bản
+Hãy cùng xem qua một ví dụ đơn giản về phân nhánh và hợp nhất với quy trình làm việc mà bạn có thể sử dụng trong thực tế. Bạn sẽ thực hiện các bước sau:
+
+Hãy làm một số công việc trên trang web.
+
+Tạo một nhánh cho câu chuyện người dùng mới mà bạn đang thực hiện.
+
+Hãy làm việc gì đó ở nhánh đó.
+
+Ở giai đoạn này, bạn sẽ nhận được cuộc gọi thông báo rằng một vấn đề khác rất nghiêm trọng và cần bản vá lỗi khẩn cấp. Bạn sẽ thực hiện các bước sau:
+
+Chuyển sang nhánh sản xuất của bạn.
+
+Tạo một nhánh để thêm bản vá lỗi.
+
+Sau khi kiểm tra xong, hãy hợp nhất nhánh sửa lỗi và đẩy lên môi trường sản xuất.
+
+Hãy quay lại câu chuyện người dùng ban đầu của bạn và tiếp tục làm việc.
+
+Phân nhánh cơ bản
+Đầu tiên, giả sử bạn đang làm việc trên dự án của mình và đã có một vài commit trên masternhánh đó.
+
+Lịch sử commit đơn giản
+Hình 18. Lịch sử commit đơn giản
+Bạn đã quyết định sẽ làm việc với vấn đề số 53 trong hệ thống theo dõi vấn đề mà công ty bạn sử dụng. Để tạo một nhánh mới và chuyển sang nhánh đó cùng lúc, bạn có thể chạy lệnh git checkoutvới -btùy chọn:
+
+$ git checkout -b iss53
+Switched to a new branch "iss53"
+Đây là cách viết tắt của:
+
+$ git branch iss53
+$ git checkout iss53
+Tạo con trỏ nhánh mới
+Hình 19. Tạo một con trỏ nhánh mới
+Bạn làm việc trên trang web của mình và thực hiện một số thao tác commit. Việc này giúp iss53nhánh tiến lên phía trước vì bạn đã checkout nó (nghĩa là con trỏ của bạn HEADđang trỏ đến nó):
+
+$ vim index.html
+$ git commit -a -m 'Create new footer [issue 53]'
+Nhánh `iss53` đã tiếp tục xử lý công việc của bạn.
+Hình 20. iss53Chi nhánh đã tiến hành công việc của bạn.
+Giờ bạn nhận được cuộc gọi thông báo rằng có sự cố với trang web và bạn cần khắc phục ngay lập tức. Với Git, bạn không cần phải triển khai bản sửa lỗi cùng với những iss53thay đổi đã thực hiện, và cũng không cần tốn nhiều công sức để hoàn tác những thay đổi đó trước khi có thể áp dụng bản sửa lỗi vào môi trường sản xuất. Tất cả những gì bạn cần làm là quay lại masternhánh ban đầu.
+
+Tuy nhiên, trước khi làm điều đó, hãy lưu ý rằng nếu thư mục làm việc hoặc khu vực dàn dựng của bạn có những thay đổi chưa được cam kết xung đột với nhánh bạn đang kiểm tra, Git sẽ không cho phép bạn chuyển nhánh. Tốt nhất là nên có một trạng thái làm việc sạch sẽ khi chuyển nhánh. Có những cách để khắc phục điều này (cụ thể là lưu trữ tạm thời và sửa đổi cam kết) mà chúng ta sẽ đề cập sau, trong phần Lưu trữ tạm thời và Làm sạch . Hiện tại, hãy giả sử bạn đã cam kết tất cả các thay đổi của mình, vì vậy bạn có thể chuyển trở lại masternhánh của mình:
+
+$ git checkout master
+Switched to branch 'master'
+Tại thời điểm này, thư mục làm việc của dự án của bạn hoàn toàn giống như trước khi bạn bắt đầu làm việc với sự cố #53, và bạn có thể tập trung vào việc sửa lỗi khẩn cấp. Đây là một điểm quan trọng cần nhớ: khi bạn chuyển nhánh, Git sẽ đặt lại thư mục làm việc của bạn về trạng thái như lần cuối bạn commit trên nhánh đó. Nó tự động thêm, xóa và sửa đổi các tệp để đảm bảo bản sao làm việc của bạn giống với trạng thái của nhánh đó tại thời điểm bạn commit lần cuối.
+
+Tiếp theo, bạn cần thực hiện một bản vá lỗi khẩn cấp. Hãy tạo một hotfixnhánh để làm việc cho đến khi hoàn thành:
+
+$ git checkout -b hotfix
+Switched to a new branch 'hotfix'
+$ vim index.html
+$ git commit -a -m 'Fix broken email address'
+[hotfix 1fb7853] Fix broken email address
+ 1 file changed, 2 insertions(+)
+Nhánh sửa lỗi khẩn cấp dựa trên nhánh `master`.
+Hình 21. Nhánh sửa lỗi khẩn cấp dựa trênmaster
+Bạn có thể chạy thử nghiệm, đảm bảo bản vá lỗi đáp ứng yêu cầu của mình, và cuối cùng hợp nhất hotfixnhánh trở lại masternhánh chính để triển khai lên môi trường sản xuất. Bạn thực hiện điều này bằng git mergelệnh:
+
+$ git checkout master
+$ git merge hotfix
+Updating f42c576..3a0874c
+Fast-forward
+ index.html | 2 ++
+ 1 file changed, 2 insertions(+)
+Bạn sẽ thấy cụm từ “fast-forward” trong thao tác hợp nhất đó. Bởi vì commit C4mà nhánh hotfixbạn vừa hợp nhất trỏ đến nằm ngay trước commit C2hiện tại, Git chỉ đơn giản là di chuyển con trỏ về phía trước. Nói cách khác, khi bạn cố gắng hợp nhất một commit với một commit có thể truy cập được bằng cách theo dõi lịch sử của commit đầu tiên, Git sẽ đơn giản hóa mọi thứ bằng cách di chuyển con trỏ về phía trước vì không có công việc phân kỳ nào cần hợp nhất — điều này được gọi là “fast-forward”.
+
+Thay đổi của bạn hiện đã được ghi nhận trong bản sao lưu của commit mà masternhánh đang trỏ tới, và bạn có thể triển khai bản sửa lỗi.
+
+`master` được chuyển tiếp nhanh đến `hotfix`.
+Hình 22 masterđược tua nhanh đếnhotfix
+Sau khi bản sửa lỗi cực kỳ quan trọng của bạn được triển khai, bạn đã sẵn sàng quay lại công việc bạn đang làm trước khi bị gián đoạn. Tuy nhiên, trước tiên bạn sẽ xóa hotfixnhánh đó, vì bạn không còn cần nó nữa — masternhánh đó trỏ đến cùng một vị trí. Bạn có thể xóa nó bằng tùy -dchọn git branch:
+
+$ git branch -d hotfix
+Deleted branch hotfix (3a0874c).
+Giờ bạn có thể quay lại nhánh đang làm việc của mình ở vấn đề số 53 và tiếp tục hoàn thiện nó.
+
+$ git checkout iss53
+Switched to branch "iss53"
+$ vim index.html
+$ git commit -a -m 'Finish the new footer [issue 53]'
+[iss53 ad82d7a] Finish the new footer [issue 53]
+1 file changed, 1 insertion(+)
+Công việc vẫn đang tiếp tục trên `iss53`.
+Hình 23. Công việc vẫn đang tiếp diễn.iss53
+Điều đáng lưu ý ở đây là công việc bạn đã thực hiện trên hotfixnhánh của mình không nằm trong các tệp trên iss53nhánh đó. Nếu bạn cần kéo nó vào, bạn có thể hợp nhất masternhánh của mình vào iss53nhánh chính bằng cách chạy lệnh git merge master, hoặc bạn có thể đợi để tích hợp những thay đổi đó cho đến khi bạn quyết định kéo iss53nhánh đó trở lại nhánh masterchính sau này.
+
+Hợp nhất cơ bản
+Giả sử bạn đã quyết định rằng công việc xử lý vấn đề #53 đã hoàn tất và sẵn sàng được hợp nhất vào masternhánh của bạn. Để làm điều đó, bạn sẽ hợp nhất iss53nhánh của mình vào master, tương tự như cách bạn đã hợp nhất hotfixnhánh của mình trước đó. Tất cả những gì bạn cần làm là chuyển sang nhánh mà bạn muốn hợp nhất vào và sau đó chạy git mergelệnh:
+
+$ git checkout master
+Switched to branch 'master'
+$ git merge iss53
+Merge made by the 'recursive' strategy.
+index.html |    1 +
+1 file changed, 1 insertion(+)
+Thao tác này trông hơi khác so với hotfixthao tác hợp nhất bạn đã thực hiện trước đó. Trong trường hợp này, lịch sử phát triển của bạn đã phân nhánh từ một điểm cũ hơn. Vì commit trên nhánh bạn đang làm việc không phải là tổ tiên trực tiếp của nhánh bạn đang hợp nhất, Git cần phải thực hiện một số thao tác. Trong trường hợp này, Git thực hiện hợp nhất ba chiều đơn giản, sử dụng hai ảnh chụp nhanh được trỏ đến bởi các đầu nhánh và tổ tiên chung của cả hai.
+
+Ba ảnh chụp nhanh được sử dụng trong một thao tác hợp nhất điển hình.
+Hình 24. Ba ảnh chụp nhanh được sử dụng trong một quy trình hợp nhất điển hình.
+Thay vì chỉ di chuyển con trỏ nhánh về phía trước, Git tạo ra một ảnh chụp nhanh mới từ quá trình hợp nhất ba chiều này và tự động tạo một commit mới trỏ đến nó. Điều này được gọi là commit hợp nhất, và điểm đặc biệt là nó có nhiều hơn một commit cha.
+
+Một cam kết hợp nhất
+Hình 25. Một commit hợp nhất
+Giờ đây, công việc của bạn đã được hợp nhất, bạn không cần iss53nhánh đó nữa. Bạn có thể đóng vấn đề trong hệ thống theo dõi vấn đề của mình và xóa nhánh đó:
+
+$ git branch -d iss53
+Các xung đột hợp nhất cơ bản
+Thỉnh thoảng, quá trình này không diễn ra suôn sẻ. Nếu bạn thay đổi cùng một phần của cùng một tệp theo cách khác nhau trong hai nhánh mà bạn đang hợp nhất, Git sẽ không thể hợp nhất chúng một cách sạch sẽ. Nếu bản sửa lỗi của bạn cho sự cố #53 đã sửa đổi cùng một phần của tệp như hotfixnhánh kia, bạn sẽ gặp xung đột hợp nhất trông giống như thế này:
+
+$ git merge iss53
+Auto-merging index.html
+CONFLICT (content): Merge conflict in index.html
+Automatic merge failed; fix conflicts and then commit the result.
+Git chưa tự động tạo commit hợp nhất mới. Nó đã tạm dừng quá trình trong khi bạn giải quyết xung đột. Nếu bạn muốn xem những tệp nào chưa được hợp nhất tại bất kỳ thời điểm nào sau khi xảy ra xung đột hợp nhất, bạn có thể chạy lệnh sau git status:
+
+$ git status
+On branch master
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+    both modified:      index.html
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Bất kỳ tệp nào có xung đột hợp nhất và chưa được giải quyết đều được liệt kê là chưa hợp nhất. Git thêm các dấu hiệu giải quyết xung đột tiêu chuẩn vào các tệp có xung đột, vì vậy bạn có thể mở chúng theo cách thủ công và giải quyết các xung đột đó. Tệp của bạn chứa một phần trông giống như thế này:
+
+<<<<<<< HEAD:index.html
+<div id="footer">contact : email.support@github.com</div>
+=======
+<div id="footer">
+ please contact us at support@github.com
+</div>
+>>>>>>> iss53:index.html
+Điều này có nghĩa là phiên bản trong HEAD( masternhánh của bạn, vì đó là nhánh bạn đã kiểm tra khi chạy lệnh hợp nhất) là phần trên cùng của khối đó (mọi thứ phía trên =======), trong khi phiên bản trong iss53nhánh của bạn trông giống như mọi thứ ở phần dưới cùng. Để giải quyết xung đột, bạn phải chọn một trong hai hoặc tự hợp nhất nội dung. Ví dụ, bạn có thể giải quyết xung đột này bằng cách thay thế toàn bộ khối bằng đoạn mã này:
+
+<div id="footer">
+please contact us at email.support@github.com
+</div>
+Bản phân giải này bao gồm một chút của mỗi phần, và các dòng <<<<<<<, =======, và >>>>>>>đã được loại bỏ hoàn toàn. Sau khi bạn đã giải quyết từng phần này trong mỗi tệp xung đột, hãy chạy lệnh git addtrên mỗi tệp để đánh dấu nó là đã được giải quyết. Việc thêm tệp vào khu vực chờ (staging) sẽ đánh dấu nó là đã được giải quyết trong Git.
+
+Nếu bạn muốn sử dụng công cụ đồ họa để giải quyết những vấn đề này, bạn có thể chạy lệnh git mergetool, lệnh này sẽ khởi động một công cụ hợp nhất trực quan phù hợp và hướng dẫn bạn xử lý các xung đột:
+
+$ git mergetool
+
+This message is displayed because 'merge.tool' is not configured.
+See 'git mergetool --tool-help' or 'git help config' for more details.
+'git mergetool' will now attempt to use one of the following tools:
+opendiff kdiff3 tkdiff xxdiff meld tortoisemerge gvimdiff diffuse diffmerge ecmerge p4merge araxis bc3 codecompare vimdiff emerge
+Merging:
+index.html
+
+Normal merge conflict for 'index.html':
+  {local}: modified file
+  {remote}: modified file
+Hit return to start merge resolution tool (opendiff):
+Nếu bạn muốn sử dụng một công cụ hợp nhất khác với công cụ mặc định ( opendifftrong trường hợp này Git đã chọn vì lệnh được chạy trên macOS), bạn có thể xem tất cả các công cụ được hỗ trợ được liệt kê ở đầu sau "một trong những công cụ sau". Chỉ cần nhập tên của công cụ bạn muốn sử dụng.
+
+Ghi chú
+Nếu bạn cần các công cụ nâng cao hơn để giải quyết các xung đột hợp nhất phức tạp, chúng tôi sẽ đề cập chi tiết hơn về hợp nhất trong phần Hợp nhất nâng cao .
+
+Sau khi thoát khỏi công cụ hợp nhất, Git sẽ hỏi bạn xem quá trình hợp nhất có thành công hay không. Nếu bạn trả lời là thành công, nó sẽ thêm tập tin vào khu vực chờ để đánh dấu là đã được giải quyết. Bạn có thể chạy git statuslại lệnh để xác minh rằng tất cả các xung đột đã được giải quyết:
+
+$ git status
+On branch master
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+
+    modified:   index.html
+Nếu bạn hài lòng với điều đó và đã xác minh rằng tất cả các xung đột đã được thêm vào khu vực chờ, bạn có thể gõ lệnh git commitđể hoàn tất việc hợp nhất. Thông báo cam kết mặc định trông giống như thế này:
+
+Merge branch 'iss53'
+
+Conflicts:
+    index.html
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	modified:   index.html
+#
+Nếu bạn nghĩ rằng việc này sẽ hữu ích cho những người khác xem xét việc hợp nhất này trong tương lai, bạn có thể sửa đổi thông báo commit này với các chi tiết về cách bạn đã giải quyết việc hợp nhất và giải thích lý do tại sao bạn đã thực hiện các thay đổi nếu những thay đổi đó không rõ ràng.
